@@ -1,4 +1,4 @@
-name: Publish cbxy
+name: Publish
 
 on:
   release:
@@ -7,7 +7,6 @@ on:
 
 jobs:
   publish:
-    if: startsWith(github.event.release.tag_name, 'cbxy-v')
     runs-on: ubuntu-latest
     environment: pypi
     permissions:
@@ -15,9 +14,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@v5
+      
+      - uses: astral-sh/setup-uv@v5
 
       - name: Build
         run: uv build
