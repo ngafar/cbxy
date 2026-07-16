@@ -83,7 +83,7 @@ button.primary.dirty {
 
 .layout {
   display: grid;
-  grid-template-columns: 200px minmax(0, 1fr) 240px;
+  grid-template-columns: 160px minmax(0, 1fr) 240px;
   height: calc(100% - 48px);
 }
 
@@ -147,6 +147,40 @@ button.primary.dirty {
 .item .count {
   color: var(--muted);
   font-size: 0.75rem;
+}
+
+.item.page-item {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.35rem;
+  padding: 0.4rem;
+}
+
+.item.page-item .thumb {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 2 / 3;
+  object-fit: cover;
+  object-position: top center;
+  background: #0a0a0c;
+  border-radius: 2px;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.item.page-item .page-meta {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.35rem;
+  padding: 0 0.15rem;
+}
+
+.item.page-item .num {
+  width: auto;
+  font-size: 0.8rem;
 }
 
 .panel-actions {

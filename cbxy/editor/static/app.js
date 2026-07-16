@@ -46,8 +46,15 @@ function renderPageList() {
   state.book.pages.forEach((page, i) => {
     const btn = document.createElement("button");
     btn.type = "button";
-    btn.className = "item" + (i === state.pageIndex ? " selected" : "");
-    btn.innerHTML = `<span class="num">${i + 1}</span><span class="label">${page.name}</span><span class="count">${page.panels.length}</span>`;
+    btn.className =
+      "item page-item" + (i === state.pageIndex ? " selected" : "");
+    btn.innerHTML = `
+      <img class="thumb" src="${page.image}" alt="" loading="lazy" draggable="false" />
+      <span class="page-meta">
+        <span class="num">${i + 1}</span>
+        <span class="count">${page.panels.length} panels</span>
+      </span>`;
+    btn.title = page.name;
     btn.addEventListener("click", () => selectPage(i));
     els.pageList.appendChild(btn);
   });
