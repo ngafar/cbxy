@@ -5,7 +5,7 @@ import numpy as np
 from huggingface_hub import hf_hub_download
 from ultralytics import YOLO
 
-from cbxy.detect import Panel, _nms, _reading_order_key
+from cbxy.detect.panels import Panel, nms, reading_order_key
 
 DEFAULT_REPO = "mosesb/best-comic-panel-detection"
 DEFAULT_FILENAME = "best.pt"
@@ -78,6 +78,6 @@ def detect_panels_ml(
             )
         )
 
-    panels = _nms(panels, iou_thresh=0.65)
-    panels.sort(key=_reading_order_key)
+    panels = nms(panels, iou_thresh=0.65)
+    panels.sort(key=reading_order_key)
     return panels
