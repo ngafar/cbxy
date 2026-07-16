@@ -72,7 +72,7 @@ This repository holds the **spec** and reference tools:
 | Path | Status | Role |
 |------|--------|------|
 | [`cbxy-generator/`](cbxy-generator/) | **in progress** | Detect panels in a CBR/CBZ and write a `.cbxy` |
-| `cbxy-studio/` | planned | Manual box drawing / editing → `.cbxy` |
+| [`cbxy-editor/`](cbxy-editor/) | **in progress** | Manual box drawing / editing → `.cbxy` |
 | [`cbxy-reader/`](cbxy-reader/) | **in progress** | Sample browser reader with guided panel view |
 
 Each tool is its own [uv](https://docs.astral.sh/uv/) project.

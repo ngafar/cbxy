@@ -1,0 +1,247 @@
+:root {
+  --bg: #121214;
+  --panel: #1c1c20;
+  --border: #2e2e34;
+  --text: #f0f0f2;
+  --muted: #9a9aa3;
+  --accent: #ff5a36;
+  --accent-soft: rgba(255, 90, 54, 0.2);
+  --ok: #3ecf8e;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+  overflow: hidden;
+}
+
+.bar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  height: 48px;
+  padding: 0 1rem;
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+}
+
+.title {
+  font-weight: 600;
+  font-size: 0.95rem;
+  max-width: 32vw;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.meta {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+.controls {
+  margin-left: auto;
+  display: flex;
+  gap: 0.5rem;
+}
+
+button {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 0.35rem 0.8rem;
+  border-radius: 4px;
+  font: inherit;
+  cursor: pointer;
+}
+
+button:hover:not(:disabled) {
+  border-color: var(--accent);
+}
+
+button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+button.primary {
+  border-color: var(--ok);
+  color: var(--ok);
+}
+
+button.primary.dirty {
+  background: rgba(62, 207, 142, 0.15);
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 200px minmax(0, 1fr) 240px;
+  height: calc(100% - 48px);
+}
+
+.sidebar {
+  overflow: auto;
+  background: var(--panel);
+  border-right: 1px solid var(--border);
+  padding: 0.5rem;
+}
+
+.sidebar.right {
+  border-right: none;
+  border-left: 1px solid var(--border);
+}
+
+.sidebar h2 {
+  margin: 0.35rem 0.4rem 0.6rem;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  width: 100%;
+  text-align: left;
+  padding: 0.45rem 0.55rem;
+  margin-bottom: 0.25rem;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+}
+
+.item:hover,
+.item.selected {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.item .num {
+  flex: 0 0 auto;
+  width: 1.4rem;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.item .label {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.82rem;
+}
+
+.item .count {
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+.panel-actions {
+  display: flex;
+  gap: 0.25rem;
+  margin: 0 0.4rem 0.5rem;
+}
+
+.panel-actions button {
+  flex: 1;
+  padding: 0.3rem;
+  font-size: 0.8rem;
+}
+
+.stage-wrap {
+  overflow: auto;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 1rem;
+  background: #0a0a0c;
+}
+
+.stage {
+  position: relative;
+  line-height: 0;
+  max-width: 100%;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45);
+}
+
+.stage img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.overlays {
+  position: absolute;
+  inset: 0;
+}
+
+.box {
+  position: absolute;
+  border: 2px solid var(--accent);
+  background: var(--accent-soft);
+  cursor: move;
+  touch-action: none;
+}
+
+.box.selected {
+  border-width: 3px;
+  background: rgba(255, 90, 54, 0.32);
+  z-index: 2;
+}
+
+.box .badge {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: var(--accent);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 1px 6px;
+  line-height: 1.4;
+  pointer-events: none;
+}
+
+.handle {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: #fff;
+  border: 1px solid var(--accent);
+  border-radius: 1px;
+}
+
+.handle.nw { left: -5px; top: -5px; cursor: nwse-resize; }
+.handle.ne { right: -5px; top: -5px; cursor: nesw-resize; }
+.handle.sw { left: -5px; bottom: -5px; cursor: nesw-resize; }
+.handle.se { right: -5px; bottom: -5px; cursor: nwse-resize; }
+.handle.n  { left: 50%; top: -5px; margin-left: -5px; cursor: ns-resize; }
+.handle.s  { left: 50%; bottom: -5px; margin-left: -5px; cursor: ns-resize; }
+.handle.w  { left: -5px; top: 50%; margin-top: -5px; cursor: ew-resize; }
+.handle.e  { right: -5px; top: 50%; margin-top: -5px; cursor: ew-resize; }
+
+@media (max-width: 900px) {
+  .layout {
+    grid-template-columns: 1fr;
+    grid-template-rows: 120px 1fr 160px;
+  }
+  .sidebar {
+    border: none;
+    border-bottom: 1px solid var(--border);
+  }
+}

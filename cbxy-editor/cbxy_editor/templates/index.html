@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>cbxy editor</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <header class="bar">
+    <div class="title" id="title">Loading…</div>
+    <div class="meta" id="meta"></div>
+    <div class="controls">
+      <button type="button" id="add">Add panel</button>
+      <button type="button" id="delete" disabled>Delete</button>
+      <button type="button" id="save" class="primary">Save</button>
+    </div>
+  </header>
+
+  <div class="layout">
+    <aside class="sidebar" id="pageList"></aside>
+
+    <main class="stage-wrap">
+      <div class="stage" id="stage">
+        <img id="pageImage" alt="" draggable="false" />
+        <div class="overlays" id="overlays"></div>
+      </div>
+    </main>
+
+    <aside class="sidebar right" id="panelList"></aside>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
