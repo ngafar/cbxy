@@ -65,14 +65,24 @@ Supported readers should:
 
 If no `.cbxy` is present (or a page has no matching entry), fall back to normal page-by-page reading.
 
+## Install
+
+```bash
+pip install cbxy                  # all tools
+pip install cbxy-generator        # detect panels → .cbxy
+pip install cbxy-reader           # guided browser reader
+pip install cbxy-editor             # manual box editor
+```
+
 ## Repo layout
 
 This repository holds the **spec** and reference tools:
 
 | Path | Status | Role |
 |------|--------|------|
-| [`cbxy-generator/`](cbxy-generator/) | **in progress** | Detect panels in a CBR/CBZ and write a `.cbxy` |
-| [`cbxy-editor/`](cbxy-editor/) | **in progress** | Manual box drawing / editing → `.cbxy` |
-| [`cbxy-reader/`](cbxy-reader/) | **in progress** | Sample browser reader with guided panel view |
+| [`cbxy-meta/`](cbxy-meta/) | published | PyPI meta-package (`pip install cbxy`) |
+| [`cbxy-generator/`](cbxy-generator/) | published | Detect panels in a CBR/CBZ and write a `.cbxy` |
+| [`cbxy-editor/`](cbxy-editor/) | published | Manual box drawing / editing → `.cbxy` |
+| [`cbxy-reader/`](cbxy-reader/) | published | Sample browser reader with guided panel view |
 
 Each tool is its own [uv](https://docs.astral.sh/uv/) project.
