@@ -12,7 +12,7 @@ from cbxy.format import default_sidecar_path, write_cbxy
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        prog="cbxy-generator",
+        prog="cbxy-detect",
         description="Detect comic panels in a CBR/CBZ (or image folder) and write a .cbxy sidecar.",
     )
     parser.add_argument(

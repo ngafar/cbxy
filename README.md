@@ -54,16 +54,16 @@ uv tool install cbxy
 
 Once installed, three command-line tools are available:
 
-- `cbxy-generator`: Detects panels in a comic and writes a `.cbxy` sidecar beside it.
+- `cbxy-detect`: Detects panels in a comic and writes a `.cbxy` sidecar beside it.
 - `cbxy-reader`: Opens a comic in the browser with optional guided panel view.
 - `cbxy-editor`: Visual editor for creating or fixing panel boxes.
 
-### cbxy-generator
+### cbxy-detect
 
 Detects panels in a comic archive and writes a `.cbxy` sidecar next to it (OpenCV by default, with ML fallback for irregular layouts).
 
 ```bash
-cbxy-generator path/to/book.cbz
+cbxy-detect path/to/book.cbz
 ```
 
 | Argument | Description |
