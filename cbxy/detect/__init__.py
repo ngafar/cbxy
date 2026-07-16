@@ -245,7 +245,7 @@ def detect_image(
         raise ValueError(f"Unknown engine: {engine!r} (expected cv|ml|auto)")
 
     if engine == "ml":
-        from cbxy.ml import detect_panels_ml
+        from cbxy.detect.ml import detect_panels_ml
 
         panels = detect_panels_ml(
             image,
@@ -262,7 +262,7 @@ def detect_image(
         )
         used = "cv"
         if engine == "auto" and _opencv_looks_weak(panels):
-            from cbxy.ml import detect_panels_ml
+            from cbxy.detect.ml import detect_panels_ml
 
             ml_panels = detect_panels_ml(
                 image,
