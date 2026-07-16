@@ -9,9 +9,7 @@ from cbxy.detect.panels import Panel, nms, reading_order_key
 
 DEFAULT_REPO = "mosesb/best-comic-panel-detection"
 DEFAULT_FILENAME = "best.pt"
-DEFAULT_LOCAL_DIR = (
-    Path(__file__).resolve().parents[2] / "models" / "comic-panel-yolo"
-)
+DEFAULT_LOCAL_DIR = Path(__file__).resolve().parents[2] / "models" / "comic-panel-yolo"
 
 
 def ensure_model(
