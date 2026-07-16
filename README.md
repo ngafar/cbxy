@@ -15,7 +15,7 @@ book.cbz                         book.cbxy
 └── Art/page-003.png             └── Art/page-003.json
 ```
 
-### Page JSON
+**Page JSON**
 
 Coordinates are **normalized fractions of the page** (`0–1`), so they survive resize. Array order is **reading order**.
 
