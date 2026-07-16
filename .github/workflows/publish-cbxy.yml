@@ -13,10 +13,6 @@ jobs:
     permissions:
       id-token: write
 
-    defaults:
-      run:
-        working-directory: cbxy-meta
-
     steps:
       - uses: actions/checkout@v4
 

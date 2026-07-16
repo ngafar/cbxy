@@ -2,7 +2,7 @@ from pathlib import Path
 
 from flask import Flask, abort, jsonify, send_from_directory
 
-from cbxy_reader.book import Book
+from cbxy.reader.book import Book
 
 PACKAGE_DIR = Path(__file__).resolve().parent
 

@@ -3,7 +3,7 @@ import zipfile
 from dataclasses import dataclass
 from pathlib import Path
 
-from cbxy_reader.archive import extract_comic
+from cbxy.archive import extract_comic
 
 
 @dataclass

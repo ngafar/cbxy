@@ -2,7 +2,7 @@ import json
 import zipfile
 from pathlib import Path
 
-from cbxy_generator.detect import DetectionResult
+from cbxy.detect import DetectionResult
 
 
 def write_cbxy(

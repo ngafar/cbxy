@@ -101,3 +101,47 @@ def open_comic(path: Path | str) -> Iterator[tuple[Path, list[Path], str | None]
         yield dest, images, path.name
     finally:
         tmp.cleanup()
+
+
+def extract_comic(
+    path: Path | str,
+) -> tuple[Path, list[Path], tempfile.TemporaryDirectory | None]:
+    """
+    Extract (or point at) a comic and return paths that outlive the call.
+
+    Caller must keep the TemporaryDirectory alive and call cleanup() when done.
+    For directories, the temp handle is None.
+    """
+    path = Path(path)
+    if not path.exists():
+        raise FileNotFoundError(path)
+
+    if path.is_dir():
+        images = list_images(path)
+        if not images:
+            raise FileNotFoundError(f"No images found in {path}")
+        return path, images, None
+
+    suffix = path.suffix.lower()
+    tmp = tempfile.TemporaryDirectory(prefix="cbxy-")
+    dest = Path(tmp.name)
+
+    if suffix in {".cbz", ".zip"}:
+        _extract_zip(path, dest)
+    elif suffix in {".cbr", ".rar"}:
+        _extract_rar(path, dest)
+    elif suffix in IMAGE_SUFFIXES:
+        target = dest / path.name
+        shutil.copy2(path, target)
+        return dest, [target], tmp
+    else:
+        tmp.cleanup()
+        raise ValueError(
+            f"Unsupported input: {path} (expected .cbz, .cbr, or a folder)"
+        )
+
+    images = list_images(dest)
+    if not images:
+        tmp.cleanup()
+        raise FileNotFoundError(f"No images found inside {path.name}")
+    return dest, images, tmp

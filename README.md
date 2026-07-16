@@ -9,6 +9,27 @@ Groo - Friends and Foes 01.cbz
 Groo - Friends and Foes 01.cbxy
 ```
 
+## Install
+
+```bash
+pip install cbxy           # core tools
+pip install 'cbxy[ml]'     # + YOLO panel detection
+```
+
+Console scripts:
+
+| Command | Role |
+|---------|------|
+| `cbxy-generator` | Detect panels in a CBR/CBZ and write a `.cbxy` |
+| `cbxy-reader` | Guided browser reader |
+| `cbxy-editor` | Manual box drawing / editing |
+
+```bash
+cbxy-generator path/to/book.cbz
+cbxy-reader path/to/book.cbz
+cbxy-editor path/to/book.cbz
+```
+
 ## Format (v1)
 
 A `.cbxy` file is a **ZIP archive of JSON files** (same idea as CBZ, but metadata instead of images).
@@ -65,24 +86,11 @@ Supported readers should:
 
 If no `.cbxy` is present (or a page has no matching entry), fall back to normal page-by-page reading.
 
-## Install
-
-```bash
-pip install cbxy                  # all tools
-pip install cbxy-generator        # detect panels → .cbxy
-pip install cbxy-reader           # guided browser reader
-pip install cbxy-editor             # manual box editor
-```
-
 ## Repo layout
 
-This repository holds the **spec** and reference tools:
+| Path | Role |
+|------|------|
+| [`cbxy/`](cbxy/) | Python package (shared + generator / reader / editor) |
+| [`examples/`](examples/) | Sample CBZ / `.cbxy` for local testing |
 
-| Path | Status | Role |
-|------|--------|------|
-| [`cbxy-meta/`](cbxy-meta/) | published | PyPI meta-package (`pip install cbxy`) |
-| [`cbxy-generator/`](cbxy-generator/) | published | Detect panels in a CBR/CBZ and write a `.cbxy` |
-| [`cbxy-editor/`](cbxy-editor/) | published | Manual box drawing / editing → `.cbxy` |
-| [`cbxy-reader/`](cbxy-reader/) | published | Sample browser reader with guided panel view |
-
-Each tool is its own [uv](https://docs.astral.sh/uv/) project.
+This is a single [uv](https://docs.astral.sh/uv/) / PyPI package. Older split packages (`cbxy-generator`, `cbxy-reader`, `cbxy-editor`) are superseded by `cbxy` ≥ 0.2.0.

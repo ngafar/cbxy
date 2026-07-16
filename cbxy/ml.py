@@ -2,16 +2,28 @@ from functools import lru_cache
 from pathlib import Path
 
 import numpy as np
-from huggingface_hub import hf_hub_download
-from ultralytics import YOLO
 
-from cbxy_generator.detect import Panel, _nms, _reading_order_key
+from cbxy.detect import Panel, _nms, _reading_order_key
 
 DEFAULT_REPO = "mosesb/best-comic-panel-detection"
 DEFAULT_FILENAME = "best.pt"
 DEFAULT_LOCAL_DIR = (
     Path(__file__).resolve().parent.parent / "models" / "comic-panel-yolo"
 )
+
+
+class MlDepsMissing(RuntimeError):
+    pass
+
+
+def _require_ml_deps() -> None:
+    try:
+        import huggingface_hub  # noqa: F401
+        import ultralytics  # noqa: F401
+    except ImportError as exc:
+        raise MlDepsMissing(
+            "ML engine requires optional deps. Install with:\n  pip install 'cbxy[ml]'"
+        ) from exc
 
 
 def ensure_model(
@@ -21,6 +33,9 @@ def ensure_model(
     local_dir: Path | str = DEFAULT_LOCAL_DIR,
 ) -> Path:
     """Download weights once (cached under models/) and return the local path."""
+    _require_ml_deps()
+    from huggingface_hub import hf_hub_download
+
     local_dir = Path(local_dir)
     local_dir.mkdir(parents=True, exist_ok=True)
     path = hf_hub_download(repo_id=repo_id, filename=filename, local_dir=local_dir)
@@ -29,6 +44,8 @@ def ensure_model(
 
 @lru_cache(maxsize=2)
 def _load_yolo(weights: str):
+    from ultralytics import YOLO
+
     return YOLO(weights)
 
 
@@ -47,6 +64,7 @@ def detect_panels_ml(
     Unlike the OpenCV path, nested boxes (splash + insets) are kept;
     only near-duplicate overlaps are suppressed via NMS.
     """
+    _require_ml_deps()
     model_path = Path(weights) if weights else ensure_model()
     model = _load_yolo(str(model_path))
 

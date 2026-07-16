@@ -5,9 +5,9 @@ from pathlib import Path
 import cv2
 import numpy as np
 
-from cbxy_generator.archive import open_comic
-from cbxy_generator.detect import detect_image, draw_panels
-from cbxy_generator.format import default_sidecar_path, write_cbxy
+from cbxy.archive import open_comic
+from cbxy.detect import detect_image, draw_panels
+from cbxy.format import default_sidecar_path, write_cbxy
 
 
 def build_parser() -> argparse.ArgumentParser:

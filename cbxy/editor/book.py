@@ -5,7 +5,7 @@ from pathlib import Path
 
 from PIL import Image
 
-from cbxy_editor.archive import extract_comic
+from cbxy.archive import extract_comic
 
 
 @dataclass

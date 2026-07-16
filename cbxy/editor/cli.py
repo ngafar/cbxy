@@ -3,8 +3,8 @@ import threading
 import time
 import webbrowser
 
-from cbxy_editor.app import create_app
-from cbxy_editor.book import load_book
+from cbxy.editor.app import create_app
+from cbxy.editor.book import load_book
 
 
 def build_parser() -> argparse.ArgumentParser:
