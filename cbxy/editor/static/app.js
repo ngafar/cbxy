@@ -42,6 +42,18 @@ function updateMeta() {
 }
 
 function renderPageList() {
+  const existing = els.pageList.querySelectorAll(".page-item");
+  if (existing.length === state.book.pages.length) {
+    existing.forEach((btn, i) => {
+      btn.classList.toggle("selected", i === state.pageIndex);
+      const count = btn.querySelector(".count");
+      if (count) {
+        count.textContent = `${state.book.pages[i].panels.length} panels`;
+      }
+    });
+    return;
+  }
+
   els.pageList.innerHTML = "<h2>Pages</h2>";
   state.book.pages.forEach((page, i) => {
     const btn = document.createElement("button");
