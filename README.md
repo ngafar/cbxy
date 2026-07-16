@@ -31,7 +31,7 @@ Coordinates are **normalized fractions of the page** (`0–1`), so they survive 
 }
 ```
 
-For a full specification, see [SPEC.md](SPEC.md).
+For a full specification, see the [cbxy format spec](https://github.com/ngafar/cbxy/blob/main/SPEC.md).
 
 ## About This Repository
 
@@ -60,6 +60,49 @@ Once installed, three command-line tools are available:
 
 ### cbxy-generator
 
+Detects panels in a comic archive and writes a `.cbxy` sidecar next to it (OpenCV by default, with ML fallback for irregular layouts).
+
+```bash
+cbxy-generator path/to/book.cbz
+```
+
+| Argument | Description |
+|----------|-------------|
+| `comic` | Path to a `.cbz`, `.cbr`, image folder, or single page image |
+| `-o`, `--out` | Output `.cbxy` path (default: same stem beside the comic) |
+| `--engine auto\|cv\|ml` | Detection backend (default: `auto`) |
+| `--min-area` | Minimum panel area as a fraction of the page (default: `0.03`) |
+| `--gutter` | Near-white gutter threshold for CV, 0–255 (default: `230`) |
+| `--conf` | ML confidence threshold (default: `0.25`) |
+| `--limit` | Only process the first N pages |
+| `--preview-dir` | Write annotated preview JPEGs into this folder |
+
 ### cbxy-reader
 
+Opens a comic in the browser. If a sibling `.cbxy` is present, supports guided panel-by-panel view; otherwise pages only.
+
+```bash
+cbxy-reader path/to/book.cbz
+```
+
+| Argument | Description |
+|----------|-------------|
+| `comic` | Path to a `.cbz`, `.cbr`, image folder, or single page image |
+| `--host` | Bind address (default: `127.0.0.1`) |
+| `--port` | Port (default: `8765`) |
+| `--no-open` | Do not open a browser window automatically |
+
 ### cbxy-editor
+
+Browser UI to create or edit panel boxes and save a `.cbxy` beside the comic.
+
+```bash
+cbxy-editor path/to/book.cbz
+```
+
+| Argument | Description |
+|----------|-------------|
+| `comic` | Path to a `.cbz`, `.cbr`, image folder, or single page image |
+| `--host` | Bind address (default: `127.0.0.1`) |
+| `--port` | Port (default: `8766`) |
+| `--no-open` | Do not open a browser window automatically |
