@@ -91,13 +91,13 @@ The ML path uses [Ultralytics YOLO](https://docs.ultralytics.com/) with the pret
 
 ### cbxy-reader
 
+![cbxy-reader guided view](https://raw.githubusercontent.com/ngafar/cbxy/main/assets/reader-demo.jpg)
+
 Opens a comic in the browser. If a sibling `.cbxy` is present, supports guided panel-by-panel view; otherwise pages only.
 
 ```bash
 cbxy-reader path/to/book.cbz
 ```
-
-![cbxy-reader guided view](https://raw.githubusercontent.com/ngafar/cbxy/main/assets/reader-demo.png)
 
 | Argument | Description |
 |----------|-------------|
@@ -108,13 +108,13 @@ cbxy-reader path/to/book.cbz
 
 ### cbxy-editor
 
+![cbxy-editor panel editing](https://raw.githubusercontent.com/ngafar/cbxy/main/assets/editor-demo.jpg)
+
 Browser UI to create or edit panel boxes and save a `.cbxy` beside the comic.
 
 ```bash
 cbxy-editor path/to/book.cbz
 ```
-
-![cbxy-editor panel editing](https://raw.githubusercontent.com/ngafar/cbxy/main/assets/editor-demo.png)
 
 | Argument | Description |
 |----------|-------------|
