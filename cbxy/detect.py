@@ -263,20 +263,17 @@ def detect_image(
         )
         used = "cv"
         if engine == "auto" and _opencv_looks_weak(panels):
-            try:
-                from cbxy.ml import MlDepsMissing, detect_panels_ml
+            from cbxy.ml import detect_panels_ml
 
-                ml_panels = detect_panels_ml(
-                    image,
-                    conf=conf,
-                    min_area_frac=min(min_area_frac, 0.02),
-                    weights=ml_weights,
-                )
-                if ml_panels:
-                    panels = ml_panels
-                    used = "ml"
-            except MlDepsMissing:
-                pass
+            ml_panels = detect_panels_ml(
+                image,
+                conf=conf,
+                min_area_frac=min(min_area_frac, 0.02),
+                weights=ml_weights,
+            )
+            if ml_panels:
+                panels = ml_panels
+                used = "ml"
 
     return DetectionResult(
         page=page_name,

@@ -12,8 +12,7 @@ Groo - Friends and Foes 01.cbxy
 ## Install
 
 ```bash
-pip install cbxy           # core tools
-pip install 'cbxy[ml]'     # + YOLO panel detection
+pip install cbxy
 ```
 
 Console scripts:

@@ -39,16 +39,12 @@ version = "0.2.0"
 source = { editable = "." }
 dependencies = [
     { name = "flask" },
+    { name = "huggingface-hub" },
     { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
     { name = "numpy", version = "2.4.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version == '3.11.*'" },
     { name = "numpy", version = "2.5.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
     { name = "opencv-python-headless" },
     { name = "pillow" },
-]
-
-[package.optional-dependencies]
-ml = [
-    { name = "huggingface-hub" },
     { name = "ultralytics" },
 ]
 
@@ -60,13 +56,12 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "flask", specifier = ">=3.1.0" },
-    { name = "huggingface-hub", marker = "extra == 'ml'", specifier = ">=1.23.0" },
+    { name = "huggingface-hub", specifier = ">=1.23.0" },
     { name = "numpy", specifier = ">=2.2.6" },
     { name = "opencv-python-headless", specifier = ">=5.0.0.93" },
     { name = "pillow", specifier = ">=12.3.0" },
-    { name = "ultralytics", marker = "extra == 'ml'", specifier = ">=8.4.96" },
+    { name = "ultralytics", specifier = ">=8.4.96" },
 ]
-provides-extras = ["ml"]
 
 [package.metadata.requires-dev]
 dev = [{ name = "ruff", specifier = ">=0.15.21" }]
