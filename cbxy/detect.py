@@ -36,7 +36,6 @@ class DetectionResult:
             "page": self.page,
             "width": self.width,
             "height": self.height,
-            "engine": self.engine,
             "panels": [asdict(p) for p in self.panels],
         }
 

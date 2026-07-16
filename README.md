@@ -53,7 +53,6 @@ Coordinates are **normalized fractions of the page** (`0–1`), so they survive 
   "page": "page-001.jpg",
   "width": 1680,
   "height": 2583,
-  "engine": "cv",
   "panels": [
     { "x": 0.035, "y": 0.058, "w": 0.388, "h": 0.286 },
     { "x": 0.437, "y": 0.058, "w": 0.526, "h": 0.287 }
@@ -65,7 +64,6 @@ Coordinates are **normalized fractions of the page** (`0–1`), so they survive 
 |--------|---------|
 | `page` | Image filename / path inside the comic archive (matches the ZIP entry name) |
 | `width` / `height` | Pixel size of the page used when boxes were authored |
-| `engine` | How boxes were produced (`cv`, `ml`, `manual`, …) — informational |
 | `panels` | Axis-aligned boxes in reading order |
 
 Each panel:

@@ -126,7 +126,6 @@ def write_cbxy(book: Book) -> Path:
                 "page": page.name,
                 "width": page.width,
                 "height": page.height,
-                "engine": "manual",
                 "panels": page.panels,
             }
             zf.writestr(page.name, json.dumps(payload, indent=2) + "\n")
