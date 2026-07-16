@@ -1,4 +1,4 @@
-name: Publish cbxy-generator
+name: Publish cbxy-reader
 
 on:
   release:
@@ -7,7 +7,7 @@ on:
 
 jobs:
   publish:
-    if: startsWith(github.event.release.tag_name, 'cbxy-generator-')
+    if: startsWith(github.event.release.tag_name, 'cbxy-reader-')
     runs-on: ubuntu-latest
     environment: pypi
     permissions:
@@ -15,7 +15,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: cbxy-generator
+        working-directory: cbxy-reader
 
     steps:
       - uses: actions/checkout@v4
