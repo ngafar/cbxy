@@ -1,0 +1,193 @@
+# cbxy Format Specification
+
+**Version:** 1  
+**Status:** draft  
+
+This document defines the **cbxy** sidecar format for comic panel geometry. It is intentionally language-agnostic: any tool that can read ZIP archives and JSON can implement it.
+
+Reference tools live in this repository; they are examples, not part of the format.
+
+---
+
+## 1. Purpose
+
+A `.cbxy` file stores axis-aligned panel bounding boxes (and reading order) for pages in a comic book archive (typically `.cbz` or `.cbr`).
+
+The comic archive is never modified. The `.cbxy` file is a portable sidecar, analogous to how subtitle files accompany video.
+
+```text
+MyComic.cbz
+MyComic.cbxy
+```
+
+---
+
+## 2. Pairing rule
+
+Given a comic file named `{basename}.{ext}`, a supporting application SHOULD look for a sibling file named `{basename}.cbxy` in the same directory.
+
+Examples:
+
+| Comic | Sidecar |
+|-------|---------|
+| `Book.cbz` | `Book.cbxy` |
+| `Book.cbr` | `Book.cbxy` |
+| `Book/` (folder of images) | `Book/Book.cbxy` (recommended) |
+
+If no sidecar is present, the application SHOULD fall back to normal page-by-page reading.
+
+---
+
+## 3. Container
+
+A `.cbxy` file is a **ZIP archive** containing one JSON file per comic page that has panel data.
+
+There is **no required manifest** file. Presence of page JSON entries is sufficient.
+
+ZIP entry names MUST use forward slashes (`/`) as path separators.
+
+---
+
+## 4. Entry naming
+
+For a page image stored in the comic at relative path `P` (for example `page-001.jpg` or `Art/page-003.png`), the corresponding sidecar entry MUST be named by replacing the image’s file extension with `.json`:
+
+| Image path in comic | Entry path in `.cbxy` |
+|---------------------|------------------------|
+| `page-001.jpg` | `page-001.json` |
+| `Art/page-003.png` | `Art/page-003.json` |
+| `chapter1/001.webp` | `chapter1/001.json` |
+
+Matching is by relative path within each archive (comic ↔ sidecar), not by absolute filesystem paths.
+
+If a page has no entry in the sidecar, consumers MUST treat that page as having no panel geometry (page-level viewing only).
+
+---
+
+## 5. Page document
+
+Each ZIP entry is a UTF-8 encoded JSON object.
+
+### 5.1 Required fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `page` | string | Relative path of the image inside the comic archive (with original extension) |
+| `width` | number (integer) | Pixel width of the page image when boxes were authored |
+| `height` | number (integer) | Pixel height of the page image when boxes were authored |
+| `panels` | array | Ordered list of panel boxes (see §6). MAY be empty. |
+
+### 5.2 Example
+
+```json
+{
+  "page": "page-001.jpg",
+  "width": 1680,
+  "height": 2583,
+  "panels": [
+    { "x": 0.035, "y": 0.058, "w": 0.388, "h": 0.286 },
+    { "x": 0.437, "y": 0.058, "w": 0.526, "h": 0.287 }
+  ]
+}
+```
+
+### 5.3 Unknown fields
+
+Consumers MUST ignore unrecognized fields so the format can evolve without breaking older readers.
+
+Producers SHOULD NOT invent conflicting meanings for the required field names above.
+
+---
+
+## 6. Panel boxes
+
+Each element of `panels` is an object:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `x` | number | Left edge of the box, as a fraction of page width |
+| `y` | number | Top edge of the box, as a fraction of page height |
+| `w` | number | Box width, as a fraction of page width |
+| `h` | number | Box height, as a fraction of page height |
+
+### 6.1 Coordinate system
+
+- Origin `(0, 0)` is the **top-left** of the page image.
+- `x` increases to the right; `y` increases downward.
+- All values are **normalized** to the unit square: typically in `[0, 1]`.
+- Pixel conversion:
+
+  ```text
+  pixel_x = x * display_width
+  pixel_y = y * display_height
+  pixel_w = w * display_width
+  pixel_h = h * display_height
+  ```
+
+  where `display_width` / `display_height` are the dimensions of the image being shown (which MAY differ from `width` / `height` in the JSON if the file was resized, as long as aspect ratio is preserved).
+
+### 6.2 Validity
+
+Producers SHOULD ensure:
+
+- `w > 0` and `h > 0`
+- `x >= 0`, `y >= 0`
+- `x + w <= 1` and `y + h <= 1` (boxes stay on-page)
+
+Consumers MAY clamp out-of-range boxes rather than failing.
+
+### 6.3 Reading order
+
+The **array order** of `panels` is the reading order for guided navigation.
+
+- For left-to-right comics, producers SHOULD order panels top-to-bottom, and left-to-right within a row.
+- For right-to-left comics, producers SHOULD order accordingly.
+- The format does not encode reading direction as a required field; applications MAY infer or configure it separately.
+
+---
+
+## 7. Consumer behavior (recommended)
+
+A guided-view consumer SHOULD:
+
+1. Resolve the sibling `.cbxy` for the open comic (§2).
+2. Enumerate page images from the comic in the application’s normal page order.
+3. For each page image path `P`, open entry `stem(P).json` with the same directory prefix (§4).
+4. Parse the JSON and use `panels` for panel-by-panel navigation / camera framing.
+5. If the sidecar or page entry is missing, show the full page only.
+
+How navigation is presented (full page first, masks, transitions, etc.) is application-defined and outside this specification.
+
+---
+
+## 8. Producer behavior (recommended)
+
+A producer SHOULD:
+
+1. Write a `.cbxy` ZIP next to the comic (§2), or to an explicitly chosen path.
+2. Emit one `.json` entry per processed page (§4).
+3. Set `page` to the image’s path inside the comic.
+4. Set `width` / `height` to the pixel size used when measuring boxes.
+5. Store panels in intended reading order with normalized coordinates (§6).
+
+---
+
+## 9. Versioning
+
+This document defines **cbxy format version 1**.
+
+There is no required version field inside the ZIP. Future breaking changes SHOULD bump the format version described here and MAY introduce an optional version marker in page JSON or a reserved entry name. Until then, consumers SHOULD treat documents conforming to §3–§6 as version 1.
+
+---
+
+## 10. Non-goals
+
+The format does **not** specify:
+
+- Speech-balloon or OCR text regions
+- Audio / timed media
+- DRM or encryption
+- Panel shapes other than axis-aligned rectangles
+- Embedding the comic images inside the `.cbxy` file
+
+Those may appear in later optional extensions without changing the core panel-box model.

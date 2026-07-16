@@ -1,35 +1,8 @@
 # cbxy
 
-**cbxy** is a sidecar format for comic panel geometry — bounding boxes and reading order for pages inside a `.cbr` / `.cbz`.
+**cbxy** is a sidecar format for comic panel geometry.
 
-Think of it like subtitles for comics: the archive stays untouched; a `.cbxy` file lives next to it and any supporting reader can pick it up by matching basename.
-
-```text
-Groo - Friends and Foes 01.cbz
-Groo - Friends and Foes 01.cbxy
-```
-
-## Install
-
-```bash
-pip install cbxy
-```
-
-Console scripts:
-
-| Command | Role |
-|---------|------|
-| `cbxy-generator` | Detect panels in a CBR/CBZ and write a `.cbxy` |
-| `cbxy-reader` | Guided browser reader |
-| `cbxy-editor` | Manual box drawing / editing |
-
-```bash
-cbxy-generator path/to/book.cbz
-cbxy-reader path/to/book.cbz
-cbxy-editor path/to/book.cbz
-```
-
-## Format (v1)
+## A Brief Introduction
 
 A `.cbxy` file is a **ZIP archive of JSON files** (same idea as CBZ, but metadata instead of images).
 
@@ -58,34 +31,35 @@ Coordinates are **normalized fractions of the page** (`0–1`), so they survive 
 }
 ```
 
-| Field | Meaning |
-|--------|---------|
-| `page` | Image filename / path inside the comic archive |
-| `width` / `height` | Pixel size of the page used when boxes were authored |
-| `panels` | Axis-aligned boxes in reading order |
+For a full specification, see [SPEC.md](SPEC.md).
 
-Each panel:
+## About This Repository
 
-| Field | Meaning |
-|--------|---------|
-| `x`, `y` | Top-left of the box, as a fraction of page width/height |
-| `w`, `h` | Box size, as a fraction of page width/height |
+This repository is a Python reference implementation of the **cbxy** format and tools. It is meant to be a showcase for the format and tools.
 
-## Reader behavior
+## Installation
 
-Supported readers should:
+Install using pip:
 
-1. When opening `book.cbz` / `book.cbr`, look for `book.cbxy` beside it (same stem).
-2. For each page image in the comic, open the matching ``.json`` entry inside the `.cbxy` ZIP (same path, `.json` suffix) and parse it.
-3. Use `panels` for guided view / panel navigation.
+```bash
+pip install cbxy
+```
 
-If no `.cbxy` is present (or a page has no matching entry), fall back to normal page-by-page reading.
+or uv:
+```bash
+uv tool install cbxy
+```
 
-## Repo layout
+## Tools
 
-| Path | Role |
-|------|------|
-| [`cbxy/`](cbxy/) | Python package (shared + generator / reader / editor) |
-| [`examples/`](examples/) | Sample CBZ / `.cbxy` for local testing |
+Once installed, three command-line tools are available:
 
-This is a single [uv](https://docs.astral.sh/uv/) / PyPI package. Older split packages (`cbxy-generator`, `cbxy-reader`, `cbxy-editor`) are superseded by `cbxy` ≥ 0.2.0.
+- `cbxy-generator`: Detects panels in a comic and writes a `.cbxy` sidecar beside it.
+- `cbxy-reader`: Opens a comic in the browser with optional guided panel view.
+- `cbxy-editor`: Visual editor for creating or fixing panel boxes.
+
+### cbxy-generator
+
+### cbxy-reader
+
+### cbxy-editor
