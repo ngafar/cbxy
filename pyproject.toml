@@ -1,6 +1,6 @@
 [project]
 name = "cbxy"
-version = "0.2.0"
+version = "0.1.1"
 description = "Comic panel sidecar format and tools (detect, reader, editor)"
 readme = "README.md"
 requires-python = ">=3.10"
