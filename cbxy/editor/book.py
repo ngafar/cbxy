@@ -6,6 +6,12 @@ from pathlib import Path
 from PIL import Image
 
 from cbxy.archive import extract_comic
+from cbxy.format import (
+    default_sidecar_path,
+    load_cbxy,
+    lookup_page_meta,
+    meta_entry_name,
+)
 
 
 @dataclass
@@ -57,30 +63,6 @@ class Book:
         }
 
 
-def default_sidecar_path(comic: Path) -> Path:
-    if comic.is_dir():
-        return comic / f"{comic.name}.cbxy"
-    return comic.with_suffix(".cbxy")
-
-
-def load_cbxy(path: Path) -> dict[str, dict]:
-    pages: dict[str, dict] = {}
-    with zipfile.ZipFile(path) as zf:
-        for info in zf.infolist():
-            if info.is_dir():
-                continue
-            name = info.filename
-            if name.startswith("__MACOSX/") or name.endswith(".DS_Store"):
-                continue
-            try:
-                data = json.loads(zf.read(info))
-            except (json.JSONDecodeError, UnicodeDecodeError):
-                continue
-            pages[name] = data
-            pages.setdefault(Path(name).name, data)
-    return pages
-
-
 def _image_size(path: Path) -> tuple[int, int]:
     with Image.open(path) as im:
         return im.size
@@ -97,7 +79,7 @@ def load_book(comic: Path) -> Book:
     for image_path in images:
         name = image_path.relative_to(root).as_posix()
         width, height = _image_size(image_path)
-        page_meta = meta.get(name) or meta.get(image_path.name) or {}
+        page_meta = lookup_page_meta(meta, name)
         panels = [dict(p) for p in (page_meta.get("panels") or [])]
         if page_meta.get("width") and page_meta.get("height"):
             width = int(page_meta["width"])
@@ -128,7 +110,9 @@ def write_cbxy(book: Book) -> Path:
                 "height": page.height,
                 "panels": page.panels,
             }
-            zf.writestr(page.name, json.dumps(payload, indent=2) + "\n")
+            zf.writestr(
+                meta_entry_name(page.name), json.dumps(payload, indent=2) + "\n"
+            )
     book.sidecar_exists = True
     book.dirty = False
     return book.sidecar

@@ -1,9 +1,8 @@
-import json
-import zipfile
 from dataclasses import dataclass
 from pathlib import Path
 
 from cbxy.archive import extract_comic
+from cbxy.format import load_cbxy, lookup_page_meta
 
 
 @dataclass
@@ -48,26 +47,6 @@ def sidecar_path_for(comic: Path) -> Path | None:
     return candidate if candidate.is_file() else None
 
 
-def load_cbxy(path: Path) -> dict[str, dict]:
-    """Map archive entry name → page JSON."""
-    pages: dict[str, dict] = {}
-    with zipfile.ZipFile(path) as zf:
-        for info in zf.infolist():
-            if info.is_dir():
-                continue
-            name = info.filename
-            if name.startswith("__MACOSX/") or name.endswith(".DS_Store"):
-                continue
-            try:
-                data = json.loads(zf.read(info))
-            except (json.JSONDecodeError, UnicodeDecodeError):
-                continue
-            pages[name] = data
-            # Also index by basename for flat lookups.
-            pages.setdefault(Path(name).name, data)
-    return pages
-
-
 def load_book(comic: Path) -> Book:
     comic = Path(comic).resolve()
     root, images, tmp = extract_comic(comic)
@@ -77,7 +56,7 @@ def load_book(comic: Path) -> Book:
     pages: list[Page] = []
     for image_path in images:
         name = image_path.relative_to(root).as_posix()
-        page_meta = meta.get(name) or meta.get(image_path.name) or {}
+        page_meta = lookup_page_meta(meta, name)
         panels = page_meta.get("panels") or []
         pages.append(Page(name=name, path=image_path, panels=list(panels)))
 

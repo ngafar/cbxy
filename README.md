@@ -33,16 +33,14 @@ cbxy-editor path/to/book.cbz
 
 A `.cbxy` file is a **ZIP archive of JSON files** (same idea as CBZ, but metadata instead of images).
 
-There is **no manifest**. Each entry is named **exactly** like the corresponding page image in the comic:
+There is **no manifest**. Each entry uses the **same relative path** as the comic page, with a `.json` suffix:
 
 ```text
 book.cbz                         book.cbxy
-├── page-001.jpg                 ├── page-001.jpg   ← JSON describing that page
-├── page-002.jpg                 ├── page-002.jpg
-└── page-003.jpg                 └── page-003.jpg
+├── page-001.jpg                 ├── page-001.json
+├── page-002.jpg                 ├── page-002.json
+└── Art/page-003.png             └── Art/page-003.json
 ```
-
-If images live in a subfolder inside the comic (`Art/page-001.jpg`), use the same relative path inside the `.cbxy`.
 
 ### Page JSON
 
@@ -62,7 +60,7 @@ Coordinates are **normalized fractions of the page** (`0–1`), so they survive 
 
 | Field | Meaning |
 |--------|---------|
-| `page` | Image filename / path inside the comic archive (matches the ZIP entry name) |
+| `page` | Image filename / path inside the comic archive |
 | `width` / `height` | Pixel size of the page used when boxes were authored |
 | `panels` | Axis-aligned boxes in reading order |
 
@@ -78,7 +76,7 @@ Each panel:
 Supported readers should:
 
 1. When opening `book.cbz` / `book.cbr`, look for `book.cbxy` beside it (same stem).
-2. For each page image in the comic, open the **same path/name** inside the `.cbxy` ZIP and parse its JSON.
+2. For each page image in the comic, open the matching ``.json`` entry inside the `.cbxy` ZIP (same path, `.json` suffix) and parse it.
 3. Use `panels` for guided view / panel navigation.
 
 If no `.cbxy` is present (or a page has no matching entry), fall back to normal page-by-page reading.
