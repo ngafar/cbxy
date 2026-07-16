@@ -5,7 +5,7 @@ description = "Comic panel sidecar format — install all cbxy tools"
 readme = "README.md"
 requires-python = ">=3.10"
 license = "MIT"
-authors = [{ name = "ngafar" }]
+authors = [{ name = "Nawaz Gafar" }]
 keywords = ["comics", "cbz", "cbr", "panels", "cbxy", "guided-view"]
 classifiers = [
     "Development Status :: 3 - Alpha",

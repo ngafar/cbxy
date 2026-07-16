@@ -5,7 +5,7 @@ description = "Sample browser reader for CBR/CBZ + .cbxy guided view"
 readme = "README.md"
 requires-python = ">=3.10"
 license = "MIT"
-authors = [{ name = "ngafar" }]
+authors = [{ name = "Nawaz Gafar" }]
 keywords = ["comics", "cbz", "cbr", "guided-view", "cbxy"]
 classifiers = [
     "Development Status :: 3 - Alpha",

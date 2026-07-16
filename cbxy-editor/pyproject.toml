@@ -5,7 +5,7 @@ description = "Browser editor for .cbxy panel bounding boxes"
 readme = "README.md"
 requires-python = ">=3.10"
 license = "MIT"
-authors = [{ name = "ngafar" }]
+authors = [{ name = "Nawaz Gafar" }]
 keywords = ["comics", "cbz", "cbr", "panels", "cbxy", "editor"]
 classifiers = [
     "Development Status :: 3 - Alpha",
