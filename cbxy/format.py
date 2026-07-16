@@ -2,7 +2,7 @@ import json
 import zipfile
 from pathlib import Path
 
-from cbxy.detect import DetectionResult
+from cbxy.detect.panels import DetectionResult
 
 
 def meta_entry_name(image_name: str) -> str:

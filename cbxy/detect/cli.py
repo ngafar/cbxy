@@ -6,7 +6,8 @@ import cv2
 import numpy as np
 
 from cbxy.archive import open_comic
-from cbxy.detect import detect_image, draw_panels
+from cbxy.detect.engine import detect_image
+from cbxy.detect.panels import draw_panels
 from cbxy.format import default_sidecar_path, write_cbxy
 
 
