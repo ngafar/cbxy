@@ -77,6 +77,18 @@ cbxy-generator path/to/book.cbz
 | `--limit` | Only process the first N pages |
 | `--preview-dir` | Write annotated preview JPEGs into this folder |
 
+**Engines**
+
+`--engine` chooses how panels are found. Most of the time `auto` is enough; pick `cv` or `ml` when you know the page style.
+
+| Engine | When to use |
+|--------|-------------|
+| `auto` (default) | Best general choice: tries OpenCV first, falls back to ML when a page looks irregular (e.g. one huge “panel”) |
+| `cv` | Traditional grid layouts with clear white gutters (fast, no model download) |
+| `ml` | Messy / borderless / overlapping layouts (Image-style pages, splash + insets) |
+
+The ML path uses [Ultralytics YOLO](https://docs.ultralytics.com/) with the pretrained comic-panel weights [`mosesb/best-comic-panel-detection`](https://huggingface.co/mosesb/best-comic-panel-detection) (downloaded on first ML run).
+
 ### cbxy-reader
 
 Opens a comic in the browser. If a sibling `.cbxy` is present, supports guided panel-by-panel view; otherwise pages only.
