@@ -10,6 +10,7 @@ const els = {
   meta: document.getElementById("meta"),
   pageList: document.getElementById("pageList"),
   panelList: document.getElementById("panelList"),
+  stageWrap: document.querySelector(".stage-wrap"),
   stage: document.getElementById("stage"),
   pageImage: document.getElementById("pageImage"),
   overlays: document.getElementById("overlays"),
@@ -136,11 +137,31 @@ function renderBoxes() {
   });
 }
 
-function refresh() {
+function scrollSelectedIntoView() {
+  if (state.selected < 0) return;
+
+  const box = els.overlays.querySelector(
+    `.box[data-index="${state.selected}"]`,
+  );
+  if (box) {
+    box.scrollIntoView({ block: "nearest", inline: "nearest", behavior: "smooth" });
+  }
+
+  const listItem = els.panelList.querySelectorAll(".item")[state.selected];
+  if (listItem) {
+    listItem.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  }
+}
+
+function refresh({ scrollToSelection = false } = {}) {
   renderPageList();
   renderPanelList();
   renderBoxes();
   updateMeta();
+  if (scrollToSelection) {
+    // Wait a frame so layout reflects the new selection/handles.
+    requestAnimationFrame(() => scrollSelectedIntoView());
+  }
 }
 
 function selectPage(index) {
@@ -151,6 +172,8 @@ function selectPage(index) {
 
   const show = () => {
     refresh();
+    els.stageWrap.scrollTop = 0;
+    els.stageWrap.scrollLeft = 0;
   };
 
   if (img.dataset.src === page.image && img.complete) {
@@ -166,7 +189,7 @@ function selectPage(index) {
 
 function selectPanel(index) {
   state.selected = index;
-  refresh();
+  refresh({ scrollToSelection: true });
 }
 
 function moveSelected(delta) {
@@ -179,7 +202,7 @@ function moveSelected(delta) {
   page.panels[j] = tmp;
   state.selected = j;
   markDirty();
-  refresh();
+  refresh({ scrollToSelection: true });
 }
 
 function addPanel() {
@@ -187,7 +210,7 @@ function addPanel() {
   page.panels.push({ x: 0.1, y: 0.1, w: 0.35, h: 0.3 });
   state.selected = page.panels.length - 1;
   markDirty();
-  refresh();
+  refresh({ scrollToSelection: true });
 }
 
 function deleteSelected() {
@@ -221,7 +244,7 @@ function onBoxPointerDown(e) {
 
   if (state.selected !== index) {
     state.selected = index;
-    refresh();
+    refresh({ scrollToSelection: true });
   }
 
   e.preventDefault();
