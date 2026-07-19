@@ -2,13 +2,9 @@
 
 **cbxy** is a sidecar format for comic panel geometry.
 
-It is designed to make guided digital comic reading portable. By storing panel coordinates separately from the comic itself, a single .cbxy file can be shared alongside any compatible comic archive, allowing different readers and applications to present the same guided panel-by-panel experience.
-
 ## A Brief Introduction
 
-A `.cbxy` file is a **ZIP archive of JSON files** (same idea as CBZ, but metadata instead of images).
-
-There is **no manifest**. Each entry uses the **same relative path** as the comic page, with a `.json` suffix:
+A `.cbxy` file is a ZIP archive of JSON files (same idea as CBZ, but metadata instead of images).
 
 ```text
 book.cbz                         book.cbxy
@@ -17,9 +13,7 @@ book.cbz                         book.cbxy
 └── Art/page-003.png             └── Art/page-003.json
 ```
 
-**Page JSON**
-
-Coordinates are **normalized fractions of the page** (`0–1`), so they survive resize. Array order is **reading order**.
+Coordinates are normalized fractions of the page (`0–1`), so they survive resize. Array order is reading order.
 
 ```json
 {
