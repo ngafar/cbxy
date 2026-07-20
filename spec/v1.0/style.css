@@ -1,0 +1,226 @@
+:root {
+  --bg: #0e0e10;
+  --bar: #1a1a1e;
+  --surface: #16161a;
+  --text: #f2f2f4;
+  --muted: #9a9aa3;
+  --accent: #e8e8ec;
+  --border: #2c2c32;
+  --link: #8ab4ff;
+  --code-bg: #0a0a0c;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+  line-height: 1.55;
+}
+
+.bar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  height: 48px;
+  padding: 0 1.25rem;
+  background: var(--bar);
+  border-bottom: 1px solid var(--border);
+}
+
+.brand {
+  color: var(--accent);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.brand:hover {
+  text-decoration: underline;
+}
+
+.sep {
+  color: var(--muted);
+}
+
+.doc-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.badge {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  padding: 0.15rem 0.45rem;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  color: var(--muted);
+}
+
+.badge.draft {
+  margin-left: 0.15rem;
+}
+
+.doc {
+  max-width: 46rem;
+  margin: 0 auto;
+  padding: 2.5rem 1.25rem 4rem;
+}
+
+h1 {
+  margin: 0 0 0.75rem;
+  font-size: 1.85rem;
+  line-height: 1.2;
+  font-weight: 650;
+}
+
+h2 {
+  margin: 2.4rem 0 0.85rem;
+  padding-top: 0.4rem;
+  font-size: 1.25rem;
+  border-top: 1px solid var(--border);
+}
+
+h3 {
+  margin: 1.5rem 0 0.6rem;
+  font-size: 1.05rem;
+}
+
+.lede {
+  font-size: 1.05rem;
+  color: var(--accent);
+}
+
+.note,
+p,
+li {
+  color: var(--text);
+}
+
+.note {
+  color: var(--muted);
+}
+
+a {
+  color: var(--link);
+}
+
+.toc {
+  margin: 2rem 0;
+  padding: 1rem 1.1rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.toc ol {
+  margin: 0;
+  padding-left: 1.2rem;
+}
+
+.toc li {
+  margin: 0.25rem 0;
+}
+
+.toc a {
+  text-decoration: none;
+}
+
+.toc a:hover {
+  text-decoration: underline;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0 1.25rem;
+  font-size: 0.95rem;
+}
+
+th,
+td {
+  text-align: left;
+  vertical-align: top;
+  padding: 0.55rem 0.65rem;
+  border: 1px solid var(--border);
+}
+
+th {
+  background: var(--surface);
+  color: var(--muted);
+  font-weight: 600;
+}
+
+code {
+  font-family: "IBM Plex Mono", "SFMono-Regular", Menlo, Consolas, monospace;
+  font-size: 0.9em;
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 0.05em 0.3em;
+}
+
+pre {
+  overflow-x: auto;
+  margin: 1rem 0 1.25rem;
+  padding: 0.9rem 1rem;
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+pre code {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
+ul,
+ol {
+  padding-left: 1.35rem;
+}
+
+li + li {
+  margin-top: 0.3rem;
+}
+
+.foot {
+  max-width: 46rem;
+  margin: 0 auto;
+  padding: 0 1.25rem 2.5rem;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.foot a {
+  color: var(--muted);
+}
+
+.foot a:hover {
+  color: var(--link);
+}
+
+@media (max-width: 640px) {
+  .doc-title {
+    display: none;
+  }
+
+  h1 {
+    font-size: 1.5rem;
+  }
+}

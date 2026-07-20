@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>cbxy Format Specification · v1.0</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="bar">
+    <a class="brand" href="https://github.com/ngafar/cbxy">cbxy</a>
+    <span class="sep">/</span>
+    <span class="doc-title">Format Specification</span>
+    <span class="badge">v1.0</span>
+    <span class="badge draft">draft</span>
+  </header>
+
+  <main class="doc">
+    <h1>cbxy Format Specification</h1>
+    <p class="lede">
+      This document defines the <strong>cbxy</strong> sidecar format for comic panel geometry.
+      It is intentionally language-agnostic: any tool that can read ZIP archives and JSON can implement it.
+    </p>
+    <p class="note">
+      Reference tools live in
+      <a href="https://github.com/ngafar/cbxy">this repository</a>;
+      they are examples, not part of the format.
+    </p>
+
+    <nav class="toc" aria-label="Table of contents">
+      <ol>
+        <li><a href="#purpose">Purpose</a></li>
+        <li><a href="#pairing">Pairing rule</a></li>
+        <li><a href="#container">Container</a></li>
+        <li><a href="#entry-naming">Entry naming</a></li>
+        <li><a href="#page-document">Page document</a></li>
+        <li><a href="#panel-boxes">Panel boxes</a></li>
+        <li><a href="#consumer">Consumer behavior</a></li>
+        <li><a href="#producer">Producer behavior</a></li>
+        <li><a href="#versioning">Versioning</a></li>
+        <li><a href="#non-goals">Non-goals</a></li>
+      </ol>
+    </nav>
+
+    <section id="purpose">
+      <h2>1. Purpose</h2>
+      <p>
+        A <code>.cbxy</code> file stores axis-aligned panel bounding boxes (and reading order)
+        for pages in a comic book archive (typically <code>.cbz</code> or <code>.cbr</code>).
+      </p>
+      <p>
+        The comic archive is never modified. The <code>.cbxy</code> file is a portable sidecar,
+        analogous to how subtitle files accompany video.
+      </p>
+      <pre><code>MyComic.cbz
+MyComic.cbxy</code></pre>
+    </section>
+
+    <section id="pairing">
+      <h2>2. Pairing rule</h2>
+      <p>
+        Given a comic file named <code>{basename}.{ext}</code>, a supporting application
+        SHOULD look for a sibling file named <code>{basename}.cbxy</code> in the same directory.
+      </p>
+      <table>
+        <thead>
+          <tr><th>Comic</th><th>Sidecar</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>Book.cbz</code></td><td><code>Book.cbxy</code></td></tr>
+          <tr><td><code>Book.cbr</code></td><td><code>Book.cbxy</code></td></tr>
+          <tr><td><code>Book/</code> (folder of images)</td><td><code>Book/Book.cbxy</code> (recommended)</td></tr>
+        </tbody>
+      </table>
+      <p>
+        If no sidecar is present, the application SHOULD fall back to normal page-by-page reading.
+      </p>
+    </section>
+
+    <section id="container">
+      <h2>3. Container</h2>
+      <p>
+        A <code>.cbxy</code> file is a <strong>ZIP archive</strong> containing one JSON file
+        per comic page that has panel data.
+      </p>
+      <p>
+        There is <strong>no required manifest</strong> file. Presence of page JSON entries is sufficient.
+      </p>
+      <p>
+        ZIP entry names MUST use forward slashes (<code>/</code>) as path separators.
+      </p>
+    </section>
+
+    <section id="entry-naming">
+      <h2>4. Entry naming</h2>
+      <p>
+        For a page image stored in the comic at relative path <code>P</code>
+        (for example <code>page-001.jpg</code> or <code>Art/page-003.png</code>),
+        the corresponding sidecar entry MUST be named by replacing the image’s file extension with <code>.json</code>:
+      </p>
+      <table>
+        <thead>
+          <tr><th>Image path in comic</th><th>Entry path in <code>.cbxy</code></th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>page-001.jpg</code></td><td><code>page-001.json</code></td></tr>
+          <tr><td><code>Art/page-003.png</code></td><td><code>Art/page-003.json</code></td></tr>
+          <tr><td><code>chapter1/001.webp</code></td><td><code>chapter1/001.json</code></td></tr>
+        </tbody>
+      </table>
+      <p>
+        Matching is by relative path within each archive (comic ↔ sidecar),
+        not by absolute filesystem paths.
+      </p>
+      <p>
+        If a page has no entry in the sidecar, consumers MUST treat that page as having
+        no panel geometry (page-level viewing only).
+      </p>
+    </section>
+
+    <section id="page-document">
+      <h2>5. Page document</h2>
+      <p>Each ZIP entry is a UTF-8 encoded JSON object.</p>
+
+      <h3>5.1 Required fields</h3>
+      <table>
+        <thead>
+          <tr><th>Field</th><th>Type</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>page</code></td>
+            <td>string</td>
+            <td>Relative path of the image inside the comic archive (with original extension)</td>
+          </tr>
+          <tr>
+            <td><code>width</code></td>
+            <td>number (integer)</td>
+            <td>Pixel width of the page image when boxes were authored</td>
+          </tr>
+          <tr>
+            <td><code>height</code></td>
+            <td>number (integer)</td>
+            <td>Pixel height of the page image when boxes were authored</td>
+          </tr>
+          <tr>
+            <td><code>panels</code></td>
+            <td>array</td>
+            <td>Ordered list of panel boxes (see <a href="#panel-boxes">§6</a>). MAY be empty.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>5.2 Example</h3>
+      <pre><code>{
+  "page": "page-001.jpg",
+  "width": 1680,
+  "height": 2583,
+  "panels": [
+    { "x": 0.035, "y": 0.058, "w": 0.388, "h": 0.286 },
+    { "x": 0.437, "y": 0.058, "w": 0.526, "h": 0.287 }
+  ]
+}</code></pre>
+
+      <h3>5.3 Unknown fields</h3>
+      <p>
+        Consumers MUST ignore unrecognized fields so the format can evolve without breaking older readers.
+      </p>
+      <p>
+        Producers SHOULD NOT invent conflicting meanings for the required field names above.
+      </p>
+    </section>
+
+    <section id="panel-boxes">
+      <h2>6. Panel boxes</h2>
+      <p>Each element of <code>panels</code> is an object:</p>
+      <table>
+        <thead>
+          <tr><th>Field</th><th>Type</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>x</code></td>
+            <td>number</td>
+            <td>Left edge of the box, as a fraction of page width</td>
+          </tr>
+          <tr>
+            <td><code>y</code></td>
+            <td>number</td>
+            <td>Top edge of the box, as a fraction of page height</td>
+          </tr>
+          <tr>
+            <td><code>w</code></td>
+            <td>number</td>
+            <td>Box width, as a fraction of page width</td>
+          </tr>
+          <tr>
+            <td><code>h</code></td>
+            <td>number</td>
+            <td>Box height, as a fraction of page height</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>6.1 Coordinate system</h3>
+      <ul>
+        <li>Origin <code>(0, 0)</code> is the <strong>top-left</strong> of the page image.</li>
+        <li><code>x</code> increases to the right; <code>y</code> increases downward.</li>
+        <li>All values are <strong>normalized</strong> to the unit square: typically in <code>[0, 1]</code>.</li>
+        <li>
+          Pixel conversion:
+          <pre><code>pixel_x = x * display_width
+pixel_y = y * display_height
+pixel_w = w * display_width
+pixel_h = h * display_height</code></pre>
+          where <code>display_width</code> / <code>display_height</code> are the dimensions of the image
+          being shown (which MAY differ from <code>width</code> / <code>height</code> in the JSON
+          if the file was resized, as long as aspect ratio is preserved).
+        </li>
+      </ul>
+
+      <h3>6.2 Validity</h3>
+      <p>Producers SHOULD ensure:</p>
+      <ul>
+        <li><code>w &gt; 0</code> and <code>h &gt; 0</code></li>
+        <li><code>x &gt;= 0</code>, <code>y &gt;= 0</code></li>
+        <li><code>x + w &lt;= 1</code> and <code>y + h &lt;= 1</code> (boxes stay on-page)</li>
+      </ul>
+      <p>Consumers MAY clamp out-of-range boxes rather than failing.</p>
+
+      <h3>6.3 Reading order</h3>
+      <p>The <strong>array order</strong> of <code>panels</code> is the reading order for guided navigation.</p>
+      <ul>
+        <li>
+          For left-to-right comics, producers SHOULD order panels top-to-bottom,
+          and left-to-right within a row.
+        </li>
+        <li>For right-to-left comics, producers SHOULD order accordingly.</li>
+        <li>
+          The format does not encode reading direction as a required field;
+          applications MAY infer or configure it separately.
+        </li>
+      </ul>
+    </section>
+
+    <section id="consumer">
+      <h2>7. Consumer behavior (recommended)</h2>
+      <p>A guided-view consumer SHOULD:</p>
+      <ol>
+        <li>Resolve the sibling <code>.cbxy</code> for the open comic (<a href="#pairing">§2</a>).</li>
+        <li>Enumerate page images from the comic in the application’s normal page order.</li>
+        <li>
+          For each page image path <code>P</code>, open entry <code>stem(P).json</code>
+          with the same directory prefix (<a href="#entry-naming">§4</a>).
+        </li>
+        <li>Parse the JSON and use <code>panels</code> for panel-by-panel navigation / camera framing.</li>
+        <li>If the sidecar or page entry is missing, show the full page only.</li>
+      </ol>
+      <p>
+        How navigation is presented (full page first, masks, transitions, etc.) is
+        application-defined and outside this specification.
+      </p>
+    </section>
+
+    <section id="producer">
+      <h2>8. Producer behavior (recommended)</h2>
+      <p>A producer SHOULD:</p>
+      <ol>
+        <li>Write a <code>.cbxy</code> ZIP next to the comic (<a href="#pairing">§2</a>), or to an explicitly chosen path.</li>
+        <li>Emit one <code>.json</code> entry per processed page (<a href="#entry-naming">§4</a>).</li>
+        <li>Set <code>page</code> to the image’s path inside the comic.</li>
+        <li>Set <code>width</code> / <code>height</code> to the pixel size used when measuring boxes.</li>
+        <li>Store panels in intended reading order with normalized coordinates (<a href="#panel-boxes">§6</a>).</li>
+      </ol>
+    </section>
+
+    <section id="versioning">
+      <h2>9. Versioning</h2>
+      <p>This document defines <strong>cbxy format version 1</strong>.</p>
+      <p>
+        There is no required version field inside the ZIP. Future breaking changes SHOULD bump
+        the format version described here and MAY introduce an optional version marker in page JSON
+        or a reserved entry name. Until then, consumers SHOULD treat documents conforming to
+        <a href="#container">§3</a>–<a href="#panel-boxes">§6</a> as version 1.
+      </p>
+    </section>
+
+    <section id="non-goals">
+      <h2>10. Non-goals</h2>
+      <p>The format does <strong>not</strong> specify:</p>
+      <ul>
+        <li>Speech-balloon or OCR text regions</li>
+        <li>Audio / timed media</li>
+        <li>DRM or encryption</li>
+        <li>Panel shapes other than axis-aligned rectangles</li>
+        <li>Embedding the comic images inside the <code>.cbxy</code> file</li>
+      </ul>
+      <p>
+        Those may appear in later optional extensions without changing the core panel-box model.
+      </p>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <a href="https://github.com/ngafar/cbxy/blob/main/SPEC.md">Source on GitHub</a>
+    ·
+    <a href="https://ngafar.github.io/cbxy/demo/">Live demo</a>
+  </footer>
+</body>
+</html>
