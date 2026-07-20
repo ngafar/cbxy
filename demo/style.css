@@ -1,0 +1,109 @@
+:root {
+  --bg: #0e0e10;
+  --bar: #1a1a1e;
+  --text: #f2f2f4;
+  --muted: #9a9aa3;
+  --accent: #e8e8ec;
+  --border: #2c2c32;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+  overflow: hidden;
+}
+
+.bar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  height: 48px;
+  padding: 0 1rem;
+  background: var(--bar);
+  border-bottom: 1px solid var(--border);
+}
+
+.title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 40vw;
+}
+
+.status {
+  color: var(--muted);
+  font-size: 0.85rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.controls {
+  margin-left: auto;
+  display: flex;
+  gap: 0.5rem;
+}
+
+button {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--accent);
+  padding: 0.35rem 0.85rem;
+  border-radius: 4px;
+  font: inherit;
+  cursor: pointer;
+}
+
+button:hover {
+  border-color: var(--accent);
+}
+
+button.active {
+  background: rgba(232, 232, 236, 0.12);
+  border-color: var(--accent);
+}
+
+.viewport {
+  position: relative;
+  height: calc(100% - 48px);
+  overflow: hidden;
+  background: #050506;
+  cursor: pointer;
+}
+
+.turn {
+  position: absolute;
+  inset: 0;
+  transform-origin: 50% 50%;
+  transition:
+    opacity 420ms cubic-bezier(0.22, 0.61, 0.36, 1),
+    transform 420ms cubic-bezier(0.22, 0.61, 0.36, 1);
+  will-change: opacity, transform;
+}
+
+.camera {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform-origin: 0 0;
+  transition: transform 320ms cubic-bezier(0.22, 0.61, 0.36, 1);
+  will-change: transform;
+}
+
+.camera img {
+  display: block;
+  max-width: none;
+  user-select: none;
+  -webkit-user-drag: none;
+  clip-path: inset(0% 0% 0% 0%);
+  transition: clip-path 320ms cubic-bezier(0.22, 0.61, 0.36, 1);
+  will-change: clip-path;
+}

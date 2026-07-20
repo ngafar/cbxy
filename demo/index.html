@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>cbxy demo</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="bar">
+    <div class="title" id="title">Loading…</div>
+    <div class="status" id="status"></div>
+    <div class="controls">
+      <button type="button" id="guided" class="active" title="Toggle guided view (G)" aria-pressed="true">Guided</button>
+      <button type="button" id="prev" title="Previous (←)">Prev</button>
+      <button type="button" id="next" title="Next (→ / Space)">Next</button>
+    </div>
+  </header>
+  <main class="viewport" id="viewport">
+    <div class="turn" id="turn">
+      <div class="camera" id="camera">
+        <img id="page" alt="" draggable="false" />
+      </div>
+    </div>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,7 +1,6 @@
 output/
 models/
 examples/
-*.cbxy
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
