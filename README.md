@@ -29,7 +29,7 @@ Coordinates are normalized fractions of the page (`0–1`), so they survive resi
 }
 ```
 
-For a full specification, see the [cbxy format spec](https://ngafar.github.io/cbxy/spec/v1.0/).
+For a full specification, see the [cbxy format spec](https://ngafar.github.io/cbxy/spec/).
 
 ## About This Repository
 

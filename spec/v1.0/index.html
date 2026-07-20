@@ -1,49 +1,54 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-bs-theme="dark">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>cbxy Format Specification · v1.0</title>
-  <link rel="stylesheet" href="style.css" />
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+    integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+    crossorigin="anonymous"
+  />
 </head>
 <body>
-  <header class="bar">
-    <a class="brand" href="https://github.com/ngafar/cbxy">cbxy</a>
-    <span class="sep">/</span>
-    <span class="doc-title">Format Specification</span>
-    <span class="badge">v1.0</span>
-    <span class="badge draft">draft</span>
-  </header>
+  <nav class="navbar navbar-expand-lg border-bottom bg-body-tertiary">
+    <div class="container" style="max-width: 46rem">
+      <a class="navbar-brand fw-semibold" href="../">cbxy</a>
+    </div>
+  </nav>
 
-  <main class="doc">
-    <h1>cbxy Format Specification</h1>
-    <p class="lede">
+  <main class="container py-5" style="max-width: 46rem">
+    <h1 class="mb-1">cbxy Format Specification</h1>
+    <p class="text-body-secondary mb-3">v1.0</p>
+    <p class="fs-5">
       This document defines the <strong>cbxy</strong> sidecar format for comic panel geometry.
       It is intentionally language-agnostic: any tool that can read ZIP archives and JSON can implement it.
     </p>
-    <p class="note">
+    <p class="text-body-secondary">
       Reference tools live in
       <a href="https://github.com/ngafar/cbxy">this repository</a>;
       they are examples, not part of the format.
     </p>
 
-    <nav class="toc" aria-label="Table of contents">
-      <ol>
-        <li><a href="#purpose">Purpose</a></li>
-        <li><a href="#pairing">Pairing rule</a></li>
-        <li><a href="#container">Container</a></li>
-        <li><a href="#entry-naming">Entry naming</a></li>
-        <li><a href="#page-document">Page document</a></li>
-        <li><a href="#panel-boxes">Panel boxes</a></li>
-        <li><a href="#consumer">Consumer behavior</a></li>
-        <li><a href="#producer">Producer behavior</a></li>
-        <li><a href="#versioning">Versioning</a></li>
-        <li><a href="#non-goals">Non-goals</a></li>
+    <nav class="card my-4" aria-label="Table of contents">
+      <div class="card-header">Contents</div>
+      <ol class="list-group list-group-flush list-group-numbered">
+        <li class="list-group-item"><a href="#purpose">Purpose</a></li>
+        <li class="list-group-item"><a href="#pairing">Pairing rule</a></li>
+        <li class="list-group-item"><a href="#container">Container</a></li>
+        <li class="list-group-item"><a href="#entry-naming">Entry naming</a></li>
+        <li class="list-group-item"><a href="#page-document">Page document</a></li>
+        <li class="list-group-item"><a href="#panel-boxes">Panel boxes</a></li>
+        <li class="list-group-item"><a href="#consumer">Consumer behavior</a></li>
+        <li class="list-group-item"><a href="#producer">Producer behavior</a></li>
+        <li class="list-group-item"><a href="#versioning">Versioning</a></li>
+        <li class="list-group-item"><a href="#non-goals">Non-goals</a></li>
       </ol>
     </nav>
 
-    <section id="purpose">
-      <h2>1. Purpose</h2>
+    <section id="purpose" class="mb-5">
+      <h2 class="h3 border-top pt-4">1. Purpose</h2>
       <p>
         A <code>.cbxy</code> file stores axis-aligned panel bounding boxes (and reading order)
         for pages in a comic book archive (typically <code>.cbz</code> or <code>.cbr</code>).
@@ -52,33 +57,35 @@
         The comic archive is never modified. The <code>.cbxy</code> file is a portable sidecar,
         analogous to how subtitle files accompany video.
       </p>
-      <pre><code>MyComic.cbz
+      <pre class="bg-body-tertiary border rounded p-3"><code>MyComic.cbz
 MyComic.cbxy</code></pre>
     </section>
 
-    <section id="pairing">
-      <h2>2. Pairing rule</h2>
+    <section id="pairing" class="mb-5">
+      <h2 class="h3 border-top pt-4">2. Pairing rule</h2>
       <p>
         Given a comic file named <code>{basename}.{ext}</code>, a supporting application
         SHOULD look for a sibling file named <code>{basename}.cbxy</code> in the same directory.
       </p>
-      <table>
-        <thead>
-          <tr><th>Comic</th><th>Sidecar</th></tr>
-        </thead>
-        <tbody>
-          <tr><td><code>Book.cbz</code></td><td><code>Book.cbxy</code></td></tr>
-          <tr><td><code>Book.cbr</code></td><td><code>Book.cbxy</code></td></tr>
-          <tr><td><code>Book/</code> (folder of images)</td><td><code>Book/Book.cbxy</code> (recommended)</td></tr>
-        </tbody>
-      </table>
+      <div class="table-responsive">
+        <table class="table table-bordered align-middle">
+          <thead>
+            <tr><th>Comic</th><th>Sidecar</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>Book.cbz</code></td><td><code>Book.cbxy</code></td></tr>
+            <tr><td><code>Book.cbr</code></td><td><code>Book.cbxy</code></td></tr>
+            <tr><td><code>Book/</code> (folder of images)</td><td><code>Book/Book.cbxy</code> (recommended)</td></tr>
+          </tbody>
+        </table>
+      </div>
       <p>
         If no sidecar is present, the application SHOULD fall back to normal page-by-page reading.
       </p>
     </section>
 
-    <section id="container">
-      <h2>3. Container</h2>
+    <section id="container" class="mb-5">
+      <h2 class="h3 border-top pt-4">3. Container</h2>
       <p>
         A <code>.cbxy</code> file is a <strong>ZIP archive</strong> containing one JSON file
         per comic page that has panel data.
@@ -91,23 +98,25 @@ MyComic.cbxy</code></pre>
       </p>
     </section>
 
-    <section id="entry-naming">
-      <h2>4. Entry naming</h2>
+    <section id="entry-naming" class="mb-5">
+      <h2 class="h3 border-top pt-4">4. Entry naming</h2>
       <p>
         For a page image stored in the comic at relative path <code>P</code>
         (for example <code>page-001.jpg</code> or <code>Art/page-003.png</code>),
         the corresponding sidecar entry MUST be named by replacing the image’s file extension with <code>.json</code>:
       </p>
-      <table>
-        <thead>
-          <tr><th>Image path in comic</th><th>Entry path in <code>.cbxy</code></th></tr>
-        </thead>
-        <tbody>
-          <tr><td><code>page-001.jpg</code></td><td><code>page-001.json</code></td></tr>
-          <tr><td><code>Art/page-003.png</code></td><td><code>Art/page-003.json</code></td></tr>
-          <tr><td><code>chapter1/001.webp</code></td><td><code>chapter1/001.json</code></td></tr>
-        </tbody>
-      </table>
+      <div class="table-responsive">
+        <table class="table table-bordered align-middle">
+          <thead>
+            <tr><th>Image path in comic</th><th>Entry path in <code>.cbxy</code></th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>page-001.jpg</code></td><td><code>page-001.json</code></td></tr>
+            <tr><td><code>Art/page-003.png</code></td><td><code>Art/page-003.json</code></td></tr>
+            <tr><td><code>chapter1/001.webp</code></td><td><code>chapter1/001.json</code></td></tr>
+          </tbody>
+        </table>
+      </div>
       <p>
         Matching is by relative path within each archive (comic ↔ sidecar),
         not by absolute filesystem paths.
@@ -118,41 +127,43 @@ MyComic.cbxy</code></pre>
       </p>
     </section>
 
-    <section id="page-document">
-      <h2>5. Page document</h2>
+    <section id="page-document" class="mb-5">
+      <h2 class="h3 border-top pt-4">5. Page document</h2>
       <p>Each ZIP entry is a UTF-8 encoded JSON object.</p>
 
-      <h3>5.1 Required fields</h3>
-      <table>
-        <thead>
-          <tr><th>Field</th><th>Type</th><th>Description</th></tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><code>page</code></td>
-            <td>string</td>
-            <td>Relative path of the image inside the comic archive (with original extension)</td>
-          </tr>
-          <tr>
-            <td><code>width</code></td>
-            <td>number (integer)</td>
-            <td>Pixel width of the page image when boxes were authored</td>
-          </tr>
-          <tr>
-            <td><code>height</code></td>
-            <td>number (integer)</td>
-            <td>Pixel height of the page image when boxes were authored</td>
-          </tr>
-          <tr>
-            <td><code>panels</code></td>
-            <td>array</td>
-            <td>Ordered list of panel boxes (see <a href="#panel-boxes">§6</a>). MAY be empty.</td>
-          </tr>
-        </tbody>
-      </table>
+      <h3 class="h5 mt-4">5.1 Required fields</h3>
+      <div class="table-responsive">
+        <table class="table table-bordered align-middle">
+          <thead>
+            <tr><th>Field</th><th>Type</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>page</code></td>
+              <td>string</td>
+              <td>Relative path of the image inside the comic archive (with original extension)</td>
+            </tr>
+            <tr>
+              <td><code>width</code></td>
+              <td>number (integer)</td>
+              <td>Pixel width of the page image when boxes were authored</td>
+            </tr>
+            <tr>
+              <td><code>height</code></td>
+              <td>number (integer)</td>
+              <td>Pixel height of the page image when boxes were authored</td>
+            </tr>
+            <tr>
+              <td><code>panels</code></td>
+              <td>array</td>
+              <td>Ordered list of panel boxes (see <a href="#panel-boxes">§6</a>). MAY be empty.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
 
-      <h3>5.2 Example</h3>
-      <pre><code>{
+      <h3 class="h5 mt-4">5.2 Example</h3>
+      <pre class="bg-body-tertiary border rounded p-3"><code>{
   "page": "page-001.jpg",
   "width": 1680,
   "height": 2583,
@@ -162,7 +173,7 @@ MyComic.cbxy</code></pre>
   ]
 }</code></pre>
 
-      <h3>5.3 Unknown fields</h3>
+      <h3 class="h5 mt-4">5.3 Unknown fields</h3>
       <p>
         Consumers MUST ignore unrecognized fields so the format can evolve without breaking older readers.
       </p>
@@ -171,45 +182,47 @@ MyComic.cbxy</code></pre>
       </p>
     </section>
 
-    <section id="panel-boxes">
-      <h2>6. Panel boxes</h2>
+    <section id="panel-boxes" class="mb-5">
+      <h2 class="h3 border-top pt-4">6. Panel boxes</h2>
       <p>Each element of <code>panels</code> is an object:</p>
-      <table>
-        <thead>
-          <tr><th>Field</th><th>Type</th><th>Description</th></tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><code>x</code></td>
-            <td>number</td>
-            <td>Left edge of the box, as a fraction of page width</td>
-          </tr>
-          <tr>
-            <td><code>y</code></td>
-            <td>number</td>
-            <td>Top edge of the box, as a fraction of page height</td>
-          </tr>
-          <tr>
-            <td><code>w</code></td>
-            <td>number</td>
-            <td>Box width, as a fraction of page width</td>
-          </tr>
-          <tr>
-            <td><code>h</code></td>
-            <td>number</td>
-            <td>Box height, as a fraction of page height</td>
-          </tr>
-        </tbody>
-      </table>
+      <div class="table-responsive">
+        <table class="table table-bordered align-middle">
+          <thead>
+            <tr><th>Field</th><th>Type</th><th>Description</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>x</code></td>
+              <td>number</td>
+              <td>Left edge of the box, as a fraction of page width</td>
+            </tr>
+            <tr>
+              <td><code>y</code></td>
+              <td>number</td>
+              <td>Top edge of the box, as a fraction of page height</td>
+            </tr>
+            <tr>
+              <td><code>w</code></td>
+              <td>number</td>
+              <td>Box width, as a fraction of page width</td>
+            </tr>
+            <tr>
+              <td><code>h</code></td>
+              <td>number</td>
+              <td>Box height, as a fraction of page height</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
 
-      <h3>6.1 Coordinate system</h3>
+      <h3 class="h5 mt-4">6.1 Coordinate system</h3>
       <ul>
         <li>Origin <code>(0, 0)</code> is the <strong>top-left</strong> of the page image.</li>
         <li><code>x</code> increases to the right; <code>y</code> increases downward.</li>
         <li>All values are <strong>normalized</strong> to the unit square: typically in <code>[0, 1]</code>.</li>
         <li>
           Pixel conversion:
-          <pre><code>pixel_x = x * display_width
+          <pre class="bg-body-tertiary border rounded p-3 mt-2"><code>pixel_x = x * display_width
 pixel_y = y * display_height
 pixel_w = w * display_width
 pixel_h = h * display_height</code></pre>
@@ -219,7 +232,7 @@ pixel_h = h * display_height</code></pre>
         </li>
       </ul>
 
-      <h3>6.2 Validity</h3>
+      <h3 class="h5 mt-4">6.2 Validity</h3>
       <p>Producers SHOULD ensure:</p>
       <ul>
         <li><code>w &gt; 0</code> and <code>h &gt; 0</code></li>
@@ -228,7 +241,7 @@ pixel_h = h * display_height</code></pre>
       </ul>
       <p>Consumers MAY clamp out-of-range boxes rather than failing.</p>
 
-      <h3>6.3 Reading order</h3>
+      <h3 class="h5 mt-4">6.3 Reading order</h3>
       <p>The <strong>array order</strong> of <code>panels</code> is the reading order for guided navigation.</p>
       <ul>
         <li>
@@ -243,8 +256,8 @@ pixel_h = h * display_height</code></pre>
       </ul>
     </section>
 
-    <section id="consumer">
-      <h2>7. Consumer behavior (recommended)</h2>
+    <section id="consumer" class="mb-5">
+      <h2 class="h3 border-top pt-4">7. Consumer behavior (recommended)</h2>
       <p>A guided-view consumer SHOULD:</p>
       <ol>
         <li>Resolve the sibling <code>.cbxy</code> for the open comic (<a href="#pairing">§2</a>).</li>
@@ -262,8 +275,8 @@ pixel_h = h * display_height</code></pre>
       </p>
     </section>
 
-    <section id="producer">
-      <h2>8. Producer behavior (recommended)</h2>
+    <section id="producer" class="mb-5">
+      <h2 class="h3 border-top pt-4">8. Producer behavior (recommended)</h2>
       <p>A producer SHOULD:</p>
       <ol>
         <li>Write a <code>.cbxy</code> ZIP next to the comic (<a href="#pairing">§2</a>), or to an explicitly chosen path.</li>
@@ -274,8 +287,8 @@ pixel_h = h * display_height</code></pre>
       </ol>
     </section>
 
-    <section id="versioning">
-      <h2>9. Versioning</h2>
+    <section id="versioning" class="mb-5">
+      <h2 class="h3 border-top pt-4">9. Versioning</h2>
       <p>This document defines <strong>cbxy format version 1</strong>.</p>
       <p>
         There is no required version field inside the ZIP. Future breaking changes SHOULD bump
@@ -285,8 +298,8 @@ pixel_h = h * display_height</code></pre>
       </p>
     </section>
 
-    <section id="non-goals">
-      <h2>10. Non-goals</h2>
+    <section id="non-goals" class="mb-5">
+      <h2 class="h3 border-top pt-4">10. Non-goals</h2>
       <p>The format does <strong>not</strong> specify:</p>
       <ul>
         <li>Speech-balloon or OCR text regions</li>
@@ -301,10 +314,12 @@ pixel_h = h * display_height</code></pre>
     </section>
   </main>
 
-  <footer class="foot">
-    <a href="https://github.com/ngafar/cbxy/blob/main/SPEC.md">Source on GitHub</a>
+  <footer class="container pb-5 text-body-secondary small" style="max-width: 46rem">
+    <a class="link-secondary" href="../">All specifications</a>
     ·
-    <a href="https://ngafar.github.io/cbxy/demo/">Live demo</a>
+    <a class="link-secondary" href="https://github.com/ngafar/cbxy/blob/main/SPEC.md">Source on GitHub</a>
+    ·
+    <a class="link-secondary" href="https://ngafar.github.io/cbxy/demo/">Live demo</a>
   </footer>
 </body>
 </html>
