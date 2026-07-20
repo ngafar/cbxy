@@ -2,6 +2,8 @@
 
 **cbxy** is a sidecar format for comic panel geometry.
 
+[Try the demo](https://ngafar.github.io/cbxy/demo/).
+
 ## A Brief Introduction
 
 A `.cbxy` file is a ZIP archive of JSON files (same idea as CBZ, but metadata instead of images).
