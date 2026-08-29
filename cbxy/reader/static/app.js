@@ -1,5 +1,9 @@
 const PAD = 0.04;
 const TURN_MS = 420;
+const USER_ZOOM_MIN = 0.4;
+const USER_ZOOM_MAX = 5;
+const DRAG_PX = 6;
+const MIN_VISIBLE = 64;
 
 const state = {
   book: null,
@@ -10,6 +14,9 @@ const state = {
   outro: false,
   turning: false,
   guided: true,
+  userZoom: 1,
+  panX: 0,
+  panY: 0,
 };
 
 const els = {
@@ -20,6 +27,8 @@ const els = {
   camera: document.getElementById("camera"),
   page: document.getElementById("page"),
   guided: document.getElementById("guided"),
+  zoomOut: document.getElementById("zoomOut"),
+  zoomIn: document.getElementById("zoomIn"),
   prev: document.getElementById("prev"),
   next: document.getElementById("next"),
 };
@@ -32,18 +41,37 @@ function panels() {
   return currentPage().panels || [];
 }
 
+function clamp(v, lo, hi) {
+  return Math.max(lo, Math.min(hi, v));
+}
+
+function cameraOverridden() {
+  return state.userZoom !== 1 || state.panX !== 0 || state.panY !== 0;
+}
+
+function resetView() {
+  state.userZoom = 1;
+  state.panX = 0;
+  state.panY = 0;
+}
+
 function updateStatus() {
   const total = state.book.pages.length;
+  let text;
   if (!state.guided) {
-    els.status.textContent = `Page ${state.pageIndex + 1}/${total}`;
-    return;
+    text = `Page ${state.pageIndex + 1}/${total}`;
+  } else {
+    const p = panels();
+    const view =
+      state.panelIndex < 0
+        ? `panel 0/${p.length}`
+        : `panel ${state.panelIndex + 1}/${p.length}`;
+    text = `Page ${state.pageIndex + 1}/${total} · ${view}`;
   }
-  const p = panels();
-  const view =
-    state.panelIndex < 0
-      ? `panel 0/${p.length}`
-      : `panel ${state.panelIndex + 1}/${p.length}`;
-  els.status.textContent = `Page ${state.pageIndex + 1}/${total} · ${view}`;
+  if (cameraOverridden()) {
+    text += ` · ${Math.round(state.userZoom * 100)}%`;
+  }
+  els.status.textContent = text;
 }
 
 function activePanel() {
@@ -63,6 +91,7 @@ function setGuided(enabled) {
   state.guided = enabled;
   state.panelIndex = -1;
   state.outro = false;
+  resetView();
   syncGuidedButton();
   applyCamera({ animate: true });
 }
@@ -104,27 +133,94 @@ function maskInset(panel) {
   return `inset(${top}% ${right}% ${bottom}% ${left}%)`;
 }
 
-function applyCamera({ animate = true } = {}) {
-  const img = els.page;
-  const vw = els.viewport.clientWidth;
-  const vh = els.viewport.clientHeight;
-  const iw = img.naturalWidth;
-  const ih = img.naturalHeight;
-  if (!iw || !ih || !vw || !vh) return;
+function cameraSize() {
+  return {
+    vw: els.viewport.clientWidth,
+    vh: els.viewport.clientHeight,
+    iw: els.page.naturalWidth,
+    ih: els.page.naturalHeight,
+  };
+}
 
+function baseTransform() {
+  const { vw, vh, iw, ih } = cameraSize();
+  if (!iw || !ih || !vw || !vh) return null;
   const panel = activePanel();
-  const t = panel
+  return panel
     ? panelTransform(vw, vh, iw, ih, panel)
     : fitPageTransform(vw, vh, iw, ih);
+}
+
+function composedTransform(base) {
+  const { vw, vh } = cameraSize();
+  const z = state.userZoom;
+  return {
+    tx: base.tx * z + (vw / 2) * (1 - z) + state.panX,
+    ty: base.ty * z + (vh / 2) * (1 - z) + state.panY,
+    scale: base.scale * z,
+  };
+}
+
+function clampPan(base) {
+  const { vw, vh, iw, ih } = cameraSize();
+  const z = state.userZoom;
+  const scale = base.scale * z;
+  const tx0 = base.tx * z + (vw / 2) * (1 - z);
+  const ty0 = base.ty * z + (vh / 2) * (1 - z);
+  const minTx = MIN_VISIBLE - iw * scale;
+  const maxTx = vw - MIN_VISIBLE;
+  const minTy = MIN_VISIBLE - ih * scale;
+  const maxTy = vh - MIN_VISIBLE;
+  if (minTx <= maxTx) {
+    state.panX = clamp(state.panX, minTx - tx0, maxTx - tx0);
+  }
+  if (minTy <= maxTy) {
+    state.panY = clamp(state.panY, minTy - ty0, maxTy - ty0);
+  }
+}
+
+function applyCamera({ animate = true } = {}) {
+  const base = baseTransform();
+  if (!base) return;
+  clampPan(base);
+  const t = composedTransform(base);
+  const panel = activePanel();
 
   const transition = animate ? "" : "none";
   els.camera.style.transition = transition;
   els.page.style.transition = transition;
 
   els.camera.style.transform = `translate(${t.tx}px, ${t.ty}px) scale(${t.scale})`;
-  els.page.style.clipPath = maskInset(panel);
+  // Lift the panel mask while panning/zooming so a tight box can be corrected.
+  els.page.style.clipPath = cameraOverridden() ? "inset(0% 0% 0% 0%)" : maskInset(panel);
 
   updateStatus();
+}
+
+function zoomAt(vx, vy, factor) {
+  const base = baseTransform();
+  if (!base) return;
+  const { vw, vh } = cameraSize();
+  const z0 = state.userZoom;
+  const z1 = clamp(z0 * factor, USER_ZOOM_MIN, USER_ZOOM_MAX);
+  if (z1 === z0) return;
+
+  const tx0 = base.tx * z0 + (vw / 2) * (1 - z0) + state.panX;
+  const ty0 = base.ty * z0 + (vh / 2) * (1 - z0) + state.panY;
+  const s0 = base.scale * z0;
+  const s1 = base.scale * z1;
+  if (s0 <= 0) return;
+
+  const qx = (vx - tx0) / s0;
+  const qy = (vy - ty0) / s0;
+  state.userZoom = z1;
+  state.panX = vx - qx * s1 - base.tx * z1 - (vw / 2) * (1 - z1);
+  state.panY = vy - qy * s1 - base.ty * z1 - (vh / 2) * (1 - z1);
+  applyCamera({ animate: false });
+}
+
+function zoomBy(factor) {
+  zoomAt(els.viewport.clientWidth / 2, els.viewport.clientHeight / 2, factor);
 }
 
 function waitOpacity(el) {
@@ -197,6 +293,7 @@ async function showPage(
     });
     await waitOpacity(els.turn);
 
+    resetView();
     state.pageIndex = nextIndex;
     if (resetPanel) {
       state.panelIndex = -1;
@@ -223,6 +320,7 @@ async function showPage(
     return;
   }
 
+  resetView();
   state.pageIndex = nextIndex;
   if (resetPanel) {
     state.panelIndex = -1;
@@ -234,6 +332,7 @@ async function showPage(
 
 function goNext() {
   if (state.turning) return;
+  resetView();
 
   if (!state.guided) {
     if (state.pageIndex < state.book.pages.length - 1) {
@@ -242,6 +341,8 @@ function goNext() {
         outro: false,
         direction: 1,
       });
+    } else {
+      applyCamera({ animate: true });
     }
     return;
   }
@@ -273,11 +374,14 @@ function goNext() {
       outro: false,
       direction: 1,
     });
+  } else {
+    applyCamera({ animate: true });
   }
 }
 
 function goPrev() {
   if (state.turning) return;
+  resetView();
 
   if (!state.guided) {
     if (state.pageIndex > 0) {
@@ -286,6 +390,8 @@ function goPrev() {
         outro: false,
         direction: -1,
       });
+    } else {
+      applyCamera({ animate: true });
     }
     return;
   }
@@ -319,7 +425,115 @@ function goPrev() {
       outro: prevPanels.length > 0,
       direction: -1,
     });
+  } else {
+    applyCamera({ animate: true });
   }
+}
+
+function viewportPoint(e) {
+  const r = els.viewport.getBoundingClientRect();
+  return { x: e.clientX - r.left, y: e.clientY - r.top };
+}
+
+function bindPanZoom() {
+  const pointers = new Map();
+  let pan = null;
+  let pinch = null;
+  let suppressClick = false;
+
+  function pinchMetrics() {
+    const pts = [...pointers.values()];
+    const dx = pts[1].x - pts[0].x;
+    const dy = pts[1].y - pts[0].y;
+    return {
+      dist: Math.hypot(dx, dy) || 1,
+      x: (pts[0].x + pts[1].x) / 2,
+      y: (pts[0].y + pts[1].y) / 2,
+    };
+  }
+
+  els.viewport.addEventListener("pointerdown", (e) => {
+    if (state.turning || e.button > 0) return;
+    const p = viewportPoint(e);
+    pointers.set(e.pointerId, p);
+    els.viewport.setPointerCapture(e.pointerId);
+
+    if (pointers.size === 2) {
+      pan = null;
+      pinch = pinchMetrics();
+      suppressClick = true;
+      return;
+    }
+
+    pan = { id: e.pointerId, x: p.x, y: p.y, moved: false };
+  });
+
+  els.viewport.addEventListener("pointermove", (e) => {
+    if (!pointers.has(e.pointerId)) return;
+    pointers.set(e.pointerId, viewportPoint(e));
+
+    if (pointers.size >= 2 && pinch) {
+      const now = pinchMetrics();
+      zoomAt(now.x, now.y, now.dist / pinch.dist);
+      state.panX += now.x - pinch.x;
+      state.panY += now.y - pinch.y;
+      pinch = now;
+      applyCamera({ animate: false });
+      els.viewport.classList.add("is-panning");
+      return;
+    }
+
+    if (!pan || e.pointerId !== pan.id) return;
+    const p = pointers.get(e.pointerId);
+    const dx = p.x - pan.x;
+    const dy = p.y - pan.y;
+    if (!pan.moved && Math.hypot(dx, dy) < DRAG_PX) return;
+    pan.moved = true;
+    suppressClick = true;
+    state.panX += dx;
+    state.panY += dy;
+    pan.x = p.x;
+    pan.y = p.y;
+    els.viewport.classList.add("is-panning");
+    applyCamera({ animate: false });
+  });
+
+  function endPointer(e) {
+    pointers.delete(e.pointerId);
+    if (pan && e.pointerId === pan.id) pan = null;
+    if (pointers.size < 2) pinch = null;
+    if (pointers.size === 0) {
+      els.viewport.classList.remove("is-panning");
+      try {
+        els.viewport.releasePointerCapture(e.pointerId);
+      } catch {
+        /* already released */
+      }
+    }
+  }
+
+  els.viewport.addEventListener("pointerup", endPointer);
+  els.viewport.addEventListener("pointercancel", endPointer);
+
+  els.viewport.addEventListener("click", (e) => {
+    if (suppressClick) {
+      suppressClick = false;
+      e.preventDefault();
+      return;
+    }
+    goNext();
+  });
+
+  els.viewport.addEventListener(
+    "wheel",
+    (e) => {
+      e.preventDefault();
+      if (state.turning) return;
+      const p = viewportPoint(e);
+      zoomAt(p.x, p.y, Math.exp(-e.deltaY * 0.0015));
+    },
+    { passive: false },
+  );
 }
 
 async function boot() {
@@ -341,12 +555,37 @@ async function boot() {
     e.stopPropagation();
     goPrev();
   });
-  els.viewport.addEventListener("click", goNext);
+  els.zoomIn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    zoomBy(1.2);
+  });
+  els.zoomOut.addEventListener("click", (e) => {
+    e.stopPropagation();
+    zoomBy(1 / 1.2);
+  });
+
+  bindPanZoom();
 
   window.addEventListener("keydown", (e) => {
     if (e.key === "g" || e.key === "G") {
       e.preventDefault();
       setGuided(!state.guided);
+      return;
+    }
+    if (e.key === "+" || e.key === "=") {
+      e.preventDefault();
+      zoomBy(1.2);
+      return;
+    }
+    if (e.key === "-" || e.key === "_") {
+      e.preventDefault();
+      zoomBy(1 / 1.2);
+      return;
+    }
+    if (e.key === "0") {
+      e.preventDefault();
+      resetView();
+      applyCamera({ animate: true });
       return;
     }
     if (e.key === "ArrowRight" || e.key === " " || e.key === "Enter") {

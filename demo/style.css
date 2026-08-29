@@ -29,6 +29,12 @@ body {
   padding: 0 1rem;
   background: var(--bar);
   border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.identity {
+  flex: 1 1 0;
+  min-width: 0;
 }
 
 .title {
@@ -37,17 +43,19 @@ body {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 40vw;
 }
 
 .status {
   color: var(--muted);
   font-size: 0.85rem;
   font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .controls {
-  margin-left: auto;
+  flex: 0 0 auto;
   display: flex;
   gap: 0.5rem;
 }
@@ -76,7 +84,12 @@ button.active {
   height: calc(100% - 48px);
   overflow: hidden;
   background: #050506;
-  cursor: pointer;
+  cursor: grab;
+  touch-action: none;
+}
+
+.viewport.is-panning {
+  cursor: grabbing;
 }
 
 .turn {
