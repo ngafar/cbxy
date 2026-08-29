@@ -118,6 +118,28 @@ def write_cbxy(book: Book) -> Path:
     return book.sidecar
 
 
+def detect_page_boxes(page: Page, *, engine: str = "auto") -> dict:
+    """Run panel detection on a page image; does not mutate or save the book."""
+    from cbxy.detect.engine import detect_page as run_detect
+
+    result = run_detect(page.path, engine=engine)
+    return {
+        "name": page.name,
+        "width": result.width,
+        "height": result.height,
+        "panels": [
+            {
+                "x": float(p.x),
+                "y": float(p.y),
+                "w": float(p.w),
+                "h": float(p.h),
+            }
+            for p in result.panels
+        ],
+        "engine": result.engine,
+    }
+
+
 def apply_pages_update(book: Book, pages_payload: list[dict]) -> None:
     by_name = {p["name"]: p for p in pages_payload}
     for page in book.pages:

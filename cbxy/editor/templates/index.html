@@ -8,9 +8,19 @@
 </head>
 <body>
   <header class="bar">
-    <div class="title" id="title">Loading…</div>
-    <div class="meta" id="meta"></div>
+    <div class="identity">
+      <div class="title" id="title">Loading…</div>
+      <div class="meta" id="meta"></div>
+    </div>
     <div class="controls">
+      <select id="engine" title="Detection engine (same as cbxy-detect)">
+        <option value="auto">Auto</option>
+        <option value="cv">CV</option>
+        <option value="ml">ML</option>
+      </select>
+      <button type="button" id="detectPage" title="Detect panels on this page (D)">Detect page</button>
+      <button type="button" id="detectAll" title="Detect panels on every page">Detect all</button>
+      <button type="button" id="stopDetect" hidden title="Stop detection (Esc)">Stop</button>
       <button type="button" id="add">Add panel</button>
       <button type="button" id="delete" disabled>Delete</button>
       <button type="button" id="save" class="primary">Save</button>
