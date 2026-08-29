@@ -4,6 +4,7 @@ const state = {
   selected: -1,
   dirty: false,
   detecting: false,
+  detectAbort: null,
 };
 
 const els = {
@@ -18,6 +19,7 @@ const els = {
   engine: document.getElementById("engine"),
   detectPage: document.getElementById("detectPage"),
   detectAll: document.getElementById("detectAll"),
+  stopDetect: document.getElementById("stopDetect"),
   add: document.getElementById("add"),
   delete: document.getElementById("delete"),
   save: document.getElementById("save"),
@@ -44,6 +46,7 @@ function updateMeta() {
     : `${state.book.sidecar} (new)`;
   const dirty = state.dirty ? " · unsaved" : "";
   els.meta.textContent = `${side}${dirty}`;
+  els.meta.title = els.meta.textContent;
 }
 
 function renderPageList() {
@@ -248,7 +251,11 @@ function applyDetectResult(result) {
   markDirty();
 }
 
-async function requestDetect(pageName) {
+function isAbortError(err) {
+  return Boolean(err) && err.name === "AbortError";
+}
+
+async function requestDetect(pageName, signal) {
   const res = await fetch("/api/detect", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -256,11 +263,13 @@ async function requestDetect(pageName) {
       pages: [pageName],
       engine: els.engine.value,
     }),
+    signal,
   });
   let data = {};
   try {
     data = await res.json();
-  } catch {
+  } catch (err) {
+    if (isAbortError(err)) throw err;
     data = {};
   }
   if (!res.ok) {
@@ -279,6 +288,12 @@ function setDetecting(on, { pageLabel = "Detect page", allLabel = "Detect all" }
   els.engine.disabled = on;
   els.detectPage.textContent = pageLabel;
   els.detectAll.textContent = allLabel;
+  els.stopDetect.hidden = !on;
+}
+
+function stopDetect() {
+  if (!state.detecting || !state.detectAbort) return;
+  state.detectAbort.abort();
 }
 
 async function detectCurrentPage() {
@@ -293,14 +308,18 @@ async function detectCurrentPage() {
     return;
   }
 
+  const controller = new AbortController();
+  state.detectAbort = controller;
   setDetecting(true, { pageLabel: "Detecting…" });
   try {
-    const result = await requestDetect(page.name);
+    const result = await requestDetect(page.name, controller.signal);
+    if (controller.signal.aborted) return;
     applyDetectResult(result);
     refresh();
   } catch (err) {
-    alert(String(err));
+    if (!isAbortError(err)) alert(String(err));
   } finally {
+    state.detectAbort = null;
     setDetecting(false);
   }
 }
@@ -310,35 +329,40 @@ async function detectAllPages() {
   const pages = state.book.pages;
   if (!pages.length) return;
   const withPanels = pages.filter((p) => p.panels.length).length;
-  const extra =
-    withPanels > 0
-      ? ` ${withPanels} page${withPanels === 1 ? "" : "s"} already have boxes and will be replaced.`
-      : "";
-  if (
-    !confirm(
-      `Detect panels on all ${pages.length} page${pages.length === 1 ? "" : "s"}?${extra}`,
-    )
-  ) {
-    return;
+  const lines = [
+    `Detect panels on all ${pages.length} page${pages.length === 1 ? "" : "s"}?`,
+  ];
+  if (withPanels > 0) {
+    lines.push(
+      `${withPanels} page${withPanels === 1 ? "" : "s"} already have boxes and will be replaced.`,
+    );
   }
+  lines.push("You can stop at any time. Already-detected pages keep their new boxes.");
+  if (!confirm(lines.join("\n\n"))) return;
 
+  const controller = new AbortController();
+  state.detectAbort = controller;
   const errors = [];
   setDetecting(true, { allLabel: `Detecting 0/${pages.length}` });
   try {
     for (let i = 0; i < pages.length; i++) {
+      if (controller.signal.aborted) break;
       els.detectAll.textContent = `Detecting ${i + 1}/${pages.length}`;
       try {
-        const result = await requestDetect(pages[i].name);
+        const result = await requestDetect(pages[i].name, controller.signal);
+        if (controller.signal.aborted) break;
         applyDetectResult(result);
         refresh();
       } catch (err) {
+        if (isAbortError(err)) break;
         errors.push(`${pages[i].name}: ${err.message || err}`);
       }
     }
-    if (errors.length) {
+    if (errors.length && !controller.signal.aborted) {
       alert(`Detection finished with ${errors.length} error(s):\n${errors.join("\n")}`);
     }
   } finally {
+    state.detectAbort = null;
     setDetecting(false);
   }
 }
@@ -468,6 +492,7 @@ async function boot() {
   state.book = await res.json();
   state.dirty = !!state.book.dirty;
   els.title.textContent = state.book.title;
+  els.title.title = state.book.title;
   document.title = `${state.book.title} · cbxy editor`;
 
   els.add.addEventListener("click", addPanel);
@@ -475,8 +500,14 @@ async function boot() {
   els.save.addEventListener("click", save);
   els.detectPage.addEventListener("click", detectCurrentPage);
   els.detectAll.addEventListener("click", detectAllPages);
+  els.stopDetect.addEventListener("click", stopDetect);
 
   window.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && state.detecting) {
+      e.preventDefault();
+      stopDetect();
+      return;
+    }
     if ((e.key === "s" || e.key === "S") && (e.metaKey || e.ctrlKey)) {
       e.preventDefault();
       save();
