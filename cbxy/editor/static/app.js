@@ -3,6 +3,7 @@ const state = {
   pageIndex: 0,
   selected: -1,
   dirty: false,
+  detecting: false,
 };
 
 const els = {
@@ -14,6 +15,9 @@ const els = {
   stage: document.getElementById("stage"),
   pageImage: document.getElementById("pageImage"),
   overlays: document.getElementById("overlays"),
+  engine: document.getElementById("engine"),
+  detectPage: document.getElementById("detectPage"),
+  detectAll: document.getElementById("detectAll"),
   add: document.getElementById("add"),
   delete: document.getElementById("delete"),
   save: document.getElementById("save"),
@@ -223,6 +227,122 @@ function deleteSelected() {
   refresh();
 }
 
+function pageByName(name) {
+  return state.book.pages.find((p) => p.name === name);
+}
+
+function applyDetectResult(result) {
+  const page = pageByName(result.name);
+  if (!page) return;
+  page.panels = result.panels.map((p) => ({
+    x: p.x,
+    y: p.y,
+    w: p.w,
+    h: p.h,
+  }));
+  if (result.width) page.width = result.width;
+  if (result.height) page.height = result.height;
+  if (page === currentPage()) {
+    state.selected = -1;
+  }
+  markDirty();
+}
+
+async function requestDetect(pageName) {
+  const res = await fetch("/api/detect", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      pages: [pageName],
+      engine: els.engine.value,
+    }),
+  });
+  let data = {};
+  try {
+    data = await res.json();
+  } catch {
+    data = {};
+  }
+  if (!res.ok) {
+    throw new Error(data.error || `Detect failed (${res.status})`);
+  }
+  if (!data.results || !data.results.length) {
+    throw new Error("Detect returned no results");
+  }
+  return data.results[0];
+}
+
+function setDetecting(on, { pageLabel = "Detect page", allLabel = "Detect all" } = {}) {
+  state.detecting = on;
+  els.detectPage.disabled = on;
+  els.detectAll.disabled = on;
+  els.engine.disabled = on;
+  els.detectPage.textContent = pageLabel;
+  els.detectAll.textContent = allLabel;
+}
+
+async function detectCurrentPage() {
+  if (state.detecting || !state.book) return;
+  const page = currentPage();
+  if (
+    page.panels.length &&
+    !confirm(
+      `Replace ${page.panels.length} panel${page.panels.length === 1 ? "" : "s"} on this page with auto-detected boxes?`,
+    )
+  ) {
+    return;
+  }
+
+  setDetecting(true, { pageLabel: "Detecting…" });
+  try {
+    const result = await requestDetect(page.name);
+    applyDetectResult(result);
+    refresh();
+  } catch (err) {
+    alert(String(err));
+  } finally {
+    setDetecting(false);
+  }
+}
+
+async function detectAllPages() {
+  if (state.detecting || !state.book) return;
+  const pages = state.book.pages;
+  if (!pages.length) return;
+  const withPanels = pages.filter((p) => p.panels.length).length;
+  const extra =
+    withPanels > 0
+      ? ` ${withPanels} page${withPanels === 1 ? "" : "s"} already have boxes and will be replaced.`
+      : "";
+  if (
+    !confirm(
+      `Detect panels on all ${pages.length} page${pages.length === 1 ? "" : "s"}?${extra}`,
+    )
+  ) {
+    return;
+  }
+
+  const errors = [];
+  setDetecting(true, { allLabel: `Detecting 0/${pages.length}` });
+  try {
+    for (let i = 0; i < pages.length; i++) {
+      els.detectAll.textContent = `Detecting ${i + 1}/${pages.length}`;
+      try {
+        const result = await requestDetect(pages[i].name);
+        applyDetectResult(result);
+        refresh();
+      } catch (err) {
+        errors.push(`${pages[i].name}: ${err.message || err}`);
+      }
+    }
+    if (errors.length) {
+      alert(`Detection finished with ${errors.length} error(s):\n${errors.join("\n")}`);
+    }
+  } finally {
+    setDetecting(false);
+  }
+}
+
 function stageRect() {
   return els.stage.getBoundingClientRect();
 }
@@ -353,6 +473,8 @@ async function boot() {
   els.add.addEventListener("click", addPanel);
   els.delete.addEventListener("click", deleteSelected);
   els.save.addEventListener("click", save);
+  els.detectPage.addEventListener("click", detectCurrentPage);
+  els.detectAll.addEventListener("click", detectAllPages);
 
   window.addEventListener("keydown", (e) => {
     if ((e.key === "s" || e.key === "S") && (e.metaKey || e.ctrlKey)) {
@@ -367,6 +489,12 @@ async function boot() {
     } else if (e.key === "n" || e.key === "N") {
       if (e.metaKey || e.ctrlKey) return;
       addPanel();
+    } else if (e.key === "d" || e.key === "D") {
+      if (e.metaKey || e.ctrlKey) return;
+      if (document.activeElement && ["INPUT", "SELECT", "TEXTAREA"].includes(document.activeElement.tagName)) {
+        return;
+      }
+      detectCurrentPage();
     }
   });
 

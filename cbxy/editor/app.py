@@ -2,7 +2,7 @@ from pathlib import Path
 
 from flask import Flask, abort, jsonify, request, send_from_directory
 
-from cbxy.editor.book import Book, apply_pages_update, write_cbxy
+from cbxy.editor.book import Book, apply_pages_update, detect_page_boxes, write_cbxy
 
 PACKAGE_DIR = Path(__file__).resolve().parent
 
@@ -32,6 +32,28 @@ def create_app(book: Book) -> Flask:
             abort(400, description="Expected { pages: [...] }")
         apply_pages_update(book, pages)
         return jsonify(book.to_api())
+
+    @app.post("/api/detect")
+    def api_detect():
+        payload = request.get_json(force=True, silent=True) or {}
+        engine = str(payload.get("engine") or "auto").lower().strip()
+        if engine not in {"auto", "cv", "ml"}:
+            return jsonify({"error": "engine must be auto, cv, or ml"}), 400
+
+        names = payload.get("pages")
+        if not isinstance(names, list) or not names:
+            return jsonify({"error": "Expected { pages: [name, ...] }"}), 400
+
+        results = []
+        for raw_name in names:
+            page = book.page_by_name(str(raw_name))
+            if page is None:
+                return jsonify({"error": f"Unknown page: {raw_name}"}), 404
+            try:
+                results.append(detect_page_boxes(page, engine=engine))
+            except Exception as exc:  # noqa: BLE001
+                return jsonify({"error": str(exc), "page": page.name}), 500
+        return jsonify({"results": results})
 
     @app.post("/api/save")
     def api_save():
