@@ -41,12 +41,18 @@ function markDirty() {
 }
 
 function updateMeta() {
-  const side = state.book.sidecar_exists
-    ? state.book.sidecar
-    : `${state.book.sidecar} (new)`;
-  const dirty = state.dirty ? " · unsaved" : "";
-  els.meta.textContent = `${side}${dirty}`;
-  els.meta.title = els.meta.textContent;
+  const n = state.book.pages.length;
+  const parts = [`${n} page${n === 1 ? "" : "s"}`];
+  if (!state.book.sidecar_exists) {
+    parts.push("no sidecar yet");
+  }
+  if (state.dirty) {
+    parts.push("unsaved");
+  }
+  els.meta.textContent = parts.join(" · ");
+  els.meta.title = state.book.sidecar_exists
+    ? `Sidecar: ${state.book.sidecar}`
+    : `Will create ${state.book.sidecar} on save`;
 }
 
 function renderPageList() {
