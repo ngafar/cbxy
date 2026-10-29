@@ -33,7 +33,7 @@ The full specification is [spec/v0.1.0.md](spec/v0.1.0.md).
 
 ## Tools
 
-- [cbxy-toolkit](https://github.com/ngafar/cbxy-toolkit) — A Python library with a web interface for creating, editing, and previewing CBXY files.
+- [cbxy-toolkit](https://github.com/ngafar/cbxy-toolkit) — A Python library with a web interface for creating, editing, and previewing cbxy files.
 
 ## License
 
