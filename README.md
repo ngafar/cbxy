@@ -33,12 +33,8 @@ The full specification is [spec/v0.1.0.md](spec/v0.1.0.md).
 
 ## Tools
 
-Panel detection, a guided reader, and a visual editor live in [cbxy-toolkit](https://github.com/ngafar/cbxy-toolkit). That repository is a reference implementation of this format.
+- [cbxy-toolkit](https://github.com/ngafar/cbxy-toolkit) — A Python library with a web interface for creating, editing, and previewing CBXY files.
 
-## License and implementation
+## License
 
-The CBXY specification is published under the [MIT License](LICENSE). Anyone may implement the format in independent software, including commercial or proprietary applications, without asking the specification author for copyright permission or paying a format royalty. Implementations do not need to use the Python toolkit, publish their source code, or adopt the toolkit's license.
-
-This statement describes permissions granted by the specification author; it does not grant rights held by third parties or provide a separate express patent license. The [Python toolkit](https://github.com/ngafar/cbxy-toolkit) is a separate implementation with its own dependencies and licenses.
-
-See [conformance examples](examples/README.md) for minimal interoperable test data.
+MIT
