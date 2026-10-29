@@ -1,6 +1,6 @@
-# cbxy
+# CBXY
 
-**cbxy** is a sidecar format for comic panel geometry.
+CBXY is a sidecar format that describes the position and reading order of panels in a comic. Reading software can use this information to provide a guided, panel-by-panel viewing experience.
 
 [Try the demo](https://ngafar.github.io/cbxy/demo/).
 
@@ -33,7 +33,7 @@ The full specification is [spec/v0.1.0.md](spec/v0.1.0.md).
 
 ## Tools
 
-- [cbxy-toolkit](https://github.com/ngafar/cbxy-toolkit) — A Python library with a web interface for creating, editing, and previewing cbxy files.
+- [cbxy-toolkit](https://github.com/ngafar/cbxy-toolkit) — A Python library with a web interface for creating, editing, and previewing CBXY files.
 
 ## License
 
